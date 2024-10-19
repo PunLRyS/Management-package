@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Home() {
   return (
@@ -95,6 +96,12 @@ export default function Home() {
           />
           Go to nextjs.org →
         </a>
+        <Link href="/ex_package" className="style-button">
+        Go to export pakage page 
+        </Link>
+        <Link href="/im_package" className="style-button">
+        Go to import pakage page
+        </Link> 
       </footer>
     </div>
   );
