@@ -3,6 +3,7 @@ import React, { useState } from 'react';
 import { ListDLC_dataMock as dataMock } from './Mock/ListDLC_data';
 import GoodList from './GoodList';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 const DataList = () => {
     const [data, setData] = useState(dataMock); // Lưu mock data trong state
@@ -72,7 +73,7 @@ const DataList = () => {
     );
 
     // Chuyển hướng sang trang khác để xem chi tiết
-    router.push('/summary');
+    router.push('/ex_package/Summary');
   };
 
 
@@ -89,15 +90,17 @@ const DataList = () => {
         />
       </div>
 
-      <div className="grid grid-cols-3 gap-4 mt-4">
+      <div className="grid grid-rows-3 gap-4 mt-4">
         {filteredPosts.length ? (
           filteredPosts.map((item) => (  
             <div key={item.id} className="bg-gray-200 p-4 rounded-md flex space-x-4">
               <div><strong>Số thứ tự:</strong> {item.number}</div>
               <div><strong>Tên:</strong> {item.name}</div>
               <div><strong>Mã:</strong> {item.code}</div>
+              <div><strong>Địa chỉ:</strong> {item.address}</div>
+              <div><strong>SDT:</strong> {item.sdt}</div>
               <button
-                className="style-button"
+                className="style-button ml-auto"
                 onClick={() => handleSelectDealer(item.goods)}
               >
                 {selectedGoods && selectedGoods === item.goods ? 'Ẩn' : 'Xem'} 
