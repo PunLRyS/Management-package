@@ -1,30 +1,52 @@
 "use client";
+import React, { useEffect, useState } from "react";
+import InventoryTable from "./InventoryTable";
 
-import { useEffect, useState } from 'react';
-
-const SummaryPage = () => {
-  const [savedGood, setSavedGood] = useState(null);
+const Summary = () => {
+  const [selectedDealers, setSelectedDealers] = useState([]);
 
   useEffect(() => {
-    // Lấy dữ liệu hàng hóa đã lưu từ localStorage
-    const goodData = localStorage.getItem('selectedGood');
-    if (goodData) {
-      setSavedGood(JSON.parse(goodData));
+    // Lấy dữ liệu từ localStorage
+    const dealersData = localStorage.getItem('selectedDealersData');
+    if (dealersData) {
+      setSelectedDealers(JSON.parse(dealersData));
     }
   }, []);
 
-  if (!savedGood) {
-    return <div>Không có dữ liệu để hiển thị.</div>;
-  }
-
   return (
-    <div className="container mx-auto p-4">
-      <h2 className="text-2xl font-bold mb-4">Thông tin đơn hàng đã lưu</h2>
-      <p><strong>Hàng hóa:</strong> {savedGood.name}</p>
-      <p><strong>Số lượng:</strong> {savedGood.quantity}</p>
-      <p><strong>Đơn giá:</strong> {savedGood.price} VNĐ</p>
+    <div>
+      <h1 className="text-xl font-bold text-blue-500 text-center">Danh sách đại lý đã chọn</h1>
+      {selectedDealers.length === 0 ? (
+        <div className="mt-8 text-center">
+        <p className="text-gray-500">Không có đại lý nào được chọn.</p>
+        </div>
+      ) : (
+        <table className="min-w-full mt-4 border-collapse border border-gray-300">
+          <thead>
+            <tr className="bg-blue-200">
+              <th className="border border-gray-200 p-2">STT</th>
+              <th className="border border-gray-200 p-2">Tên đại lý</th>
+              <th className="border border-gray-200 p-2">Mã đại lý</th>
+              <th className="border border-gray-200 p-2">Địa chỉ</th>
+              <th className="border border-gray-200 p-2">SĐT</th>
+            </tr>
+          </thead>
+          <tbody>
+            {selectedDealers.map((item, index) => (
+              <tr key={item.number}>
+                <td className="border border-gray-200 p-2 text-center">{index + 1}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.name}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.code}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.address}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.sdt}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      )}
+      <InventoryTable />
     </div>
   );
 };
 
-export default SummaryPage;
+export default Summary;
