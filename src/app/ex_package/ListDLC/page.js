@@ -1,7 +1,9 @@
 "use client";
 import React, { useState } from "react";
-import { ListDLC_dataMock as dataMock } from "./Mock/ListDLC_data";
+import { ListDLC_dataMock as dataMock } from "../Mock/ListDLC_data";
 import { useRouter } from "next/navigation";
+import Nav_bar from "@/app/components/Nav/Nav_bar";
+import Link from "next/link";
 
 export default function ListDLC() {
   const [data, setData] = useState(dataMock);
@@ -125,7 +127,10 @@ export default function ListDLC() {
   };
 
   return (
-    <div>
+    <>
+    <Nav_bar />
+    <div className="pt-20">
+      <h className="flex justify-center text-2xl text-blue-700 py-4 font-bold">Quản lý xuất hàng</h>
       <div className="mb-4">
         <input
           type="text"
@@ -139,16 +144,21 @@ export default function ListDLC() {
       <div className="mb-4 flex justify-center items-center space-x-4">
         <button
           onClick={() => setShowAddForm(true)}
-          className="text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg w-[25%]"
+          className="style-button w-[25%]"
         >
           Thêm đại lý
         </button>
         <button
           onClick={handleExportGoods}
-          className="text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg w-[25%]"
+          className="style-button w-[25%]"
         >
           Xuất hàng cho đại lý
         </button>
+        <Link href="/ex_package/BillExport">
+          <button className="style-button ">
+            Xem hóa đơn xuất hàng tại đây
+          </button>
+        </Link>
       </div>
 
       {showAddForm && (
@@ -332,5 +342,6 @@ export default function ListDLC() {
         </tbody>
       </table>
     </div>
+    </>
   );
 }

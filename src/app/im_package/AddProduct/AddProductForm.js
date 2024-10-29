@@ -1,5 +1,5 @@
 "use client"; 
-import { useState } from 'react';
+import { useState,useEffect } from 'react';
 import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -118,12 +118,19 @@ export default function AddProductForm() {
         className="border border-gray-300 p-2 rounded w-full mt-4 shadow-sm focus:outline-none focus:border-blue-500 focus:border-2"
       />
 
+      <div className="flex mx-auto gap-x-4">
       <button
-          className="text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg w-[50%] mx-auto"
+          className="style-button"
           onClick={() => setIsOpen(!isOpen)}
         >
           {isOpen ? 'Quay lại' : 'Hãy thêm sản phẩm tại đây'}
       </button>
+      <Link href="/im_package/BillProduct">
+      <button className="style-button">
+        Xem hóa đơn nhập hàng tại đây
+      </button>
+      </Link>
+      </div>
 
       {isOpen && (
         <div className="mt-4 bg-gray-100 p-4 rounded-md shadow-md">
@@ -271,39 +278,59 @@ export default function AddProductForm() {
             Gửi đơn hàng tới đại lý
           </button>
           </div>
-          <div className="mt-4 space-y-4">
-            {filteredProducts.map((item, index) => {
-              const totalAmount = item.soLuong * item.gia; // Tính tổng số tiền
-              return (
-              <div key={index} className="bg-gray-200 p-4 rounded-md flex justify-between items-center">
-                <div>
-                  <p><strong>Ngày nhập hàng:</strong> {item.ngayNhapHang}</p>
-                  <p><strong>Mã hàng:</strong> {item.maHang}</p>
-                  <p><strong>Tên hàng:</strong> {item.tenHang}</p>
-                  <p><strong>Mô tả:</strong> {item.moTa}</p>
-                  <p><strong>Số lượng:</strong> {item.soLuong}</p>
-                  <p><strong>Giá:</strong> {item.gia}</p>
-                  <p><strong>Nhà cung cấp:</strong> {item.nhaCungCap.maNCC} - {item.nhaCungCap.tenNCC} - {item.nhaCungCap.diaChi} - {item.nhaCungCap.soDienThoai}</p>
-                  <p><strong>Tổng số tiền:</strong> {totalAmount}</p> 
-                </div>
-                <div className="flex space-x-2">
-                  <button
-                    className="style-button"
-                    onClick={() => handleEdit(index)}
-                  >
-                    Sửa
-                  </button>
-                  <button
-                    className="style-button"
-                    onClick={() => handleDelete(index)}
-                  >
-                    Xóa
-                  </button>
-                </div>
+          <div className="mt-4 overflow-x-auto">
+  <table className="min-w-full bg-white border border-gray-200">
+    <thead>
+      <tr>
+        <th className="px-4 py-2 border-b">Ngày nhập hàng</th>
+        <th className="px-4 py-2 border-b">Mã hàng</th>
+        <th className="px-4 py-2 border-b">Tên hàng</th>
+        <th className="px-4 py-2 border-b">Mô tả</th>
+        <th className="px-4 py-2 border-b">Số lượng</th>
+        <th className="px-4 py-2 border-b">Giá</th>
+        <th className="px-4 py-2 border-b">Nhà cung cấp</th>
+        <th className="px-4 py-2 border-b">Tổng số tiền</th>
+        <th className="px-4 py-2 border-b">Chức năng</th>
+      </tr>
+    </thead>
+    <tbody>
+      {filteredProducts.map((item, index) => {
+        const totalAmount = item.soLuong * item.gia; // Tính tổng số tiền
+        return (
+          <tr key={index} className="text-center">
+            <td className="px-4 py-2 border-b">{item.ngayNhapHang}</td>
+            <td className="px-4 py-2 border-b">{item.maHang}</td>
+            <td className="px-4 py-2 border-b">{item.tenHang}</td>
+            <td className="px-4 py-2 border-b">{item.moTa}</td>
+            <td className="px-4 py-2 border-b">{item.soLuong}</td>
+            <td className="px-4 py-2 border-b">{item.gia}</td>
+            <td className="px-4 py-2 border-b">
+              {item.nhaCungCap.maNCC} - {item.nhaCungCap.tenNCC} - {item.nhaCungCap.diaChi} - {item.nhaCungCap.soDienThoai}
+            </td>
+            <td className="px-4 py-2 border-b">{totalAmount}</td>
+            <td className="px-4 py-2 border-b">
+              <div className="flex justify-center space-x-2">
+                <button
+                  className="style-button"
+                  onClick={() => handleEdit(index)}
+                >
+                  Sửa
+                </button>
+                <button
+                  className="style-button"
+                  onClick={() => handleDelete(index)}
+                >
+                  Xóa
+                </button>
               </div>
-              );
-  })}
-          </div>
+            </td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
+</div>
+
         </div>
       )}
       {confirmationOpen && (

@@ -4,6 +4,9 @@ import { Inventory_dataMock as dataMock } from "./Mock/Inventory_data";
 
 export default function Inventory() {
   const [localProducts, setLocalProducts] = useState([]);
+  const [backendProducts, setBackendProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
   
   useEffect(() => {
     // Lấy danh sách sản phẩm từ localStorage
@@ -11,10 +14,29 @@ export default function Inventory() {
     if (storedProducts) {
       setLocalProducts(JSON.parse(storedProducts));
     }
-  }, []);
 
-  // Kết hợp dữ liệu từ dataMock và localStorage
-  const combinedData = [...dataMock.posts, ...localProducts];
+  const fetchData = async () => {
+    try {
+      const response = await fetch('http://localhost:3000/hanghoa'); // Thay đổi URL cho phù hợp với backend của bạn
+      if (!response.ok) {
+        throw new Error('Network response was not ok'); // Kiểm tra phản hồi
+      }
+      const data = await response.json(); // Chuyển đổi phản hồi sang JSON
+      setBackendProducts(data); // Lưu dữ liệu vào state
+    } catch (error) {
+      setError(error); // Lưu lỗi vào state nếu có
+    } finally {
+      setLoading(false); // Đặt loading về false khi hoàn thành
+    }
+  };
+
+  fetchData(); // Gọi hàm fetchData
+}, []);
+
+// Kết hợp dữ liệu từ backend và localStorage
+const combinedData = [...backendProducts, ...localProducts];
+
+
   // Tính tổng giá trị hàng hóa
   const totalValue = dataMock.posts.reduce((total, item) => {
     return total + (item.soLuong * item.gia);
@@ -30,10 +52,6 @@ export default function Inventory() {
               <th className="border border-blue-400 p-2 text-blue-800">Số thứ tự</th>
               <th className="border border-blue-400 p-2 text-blue-800">Mã hàng</th>
               <th className="border border-blue-400 p-2 text-blue-800">Tên hàng</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Mã đại lý</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Tên đại lý</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Địa chỉ đại lý</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Số điện thoại</th>
               <th className="border border-blue-400 p-2 text-blue-800">Số lượng</th>
               <th className="border border-blue-400 p-2 text-blue-800">Giá</th>
               <th className="border border-blue-400 p-2 text-blue-800">Tổng giá</th>
@@ -47,10 +65,6 @@ export default function Inventory() {
                   <td className="border border-blue-400 p-2 text-center">{index + 1}</td>
                   <td className="border border-blue-400 p-2">{item.maHang}</td>
                   <td className="border border-blue-400 p-2">{item.tenHang}</td>
-                  <td className="border border-blue-400 p-2">{item.nhaCungCap.maNCC}</td>
-                  <td className="border border-blue-400 p-2">{item.nhaCungCap.tenNCC}</td>
-                  <td className="border border-blue-400 p-2">{item.nhaCungCap.diaChi}</td>
-                  <td className="border border-blue-400 p-2">{item.nhaCungCap.soDienThoai}</td>
                   <td className="border border-blue-400 p-2 text-center">{item.soLuong}</td>
                   <td className="border border-blue-400 p-2 text-right">{item.gia}</td>
                   <td className="border border-blue-400 p-2 text-right">{totalAmount}</td>
@@ -60,7 +74,7 @@ export default function Inventory() {
           </tbody>
           <tfoot>
             <tr>
-              <td colSpan="9" className="border border-blue-400 p-2 text-right font-bold">Tổng giá trị hàng hóa:</td>
+              <td colSpan="5" className="border border-blue-400 p-2 text-right font-bold">Tổng giá trị hàng hóa:</td>
               <td className="border border-blue-400 p-2 text-right">{totalValue}</td>
             </tr>
           </tfoot>

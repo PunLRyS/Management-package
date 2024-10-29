@@ -1,6 +1,8 @@
 'use client'; // Với App Router trong Next.js 13+, cần 'use client' nếu dùng useEffect
 
+import Nav_bar from '@/app/components/Nav/Nav_bar';
 import { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function BillExport() {
   const [exportedItems, setExportedItems] = useState([]);
@@ -28,7 +30,9 @@ export default function BillExport() {
   }, 0);
 
   return (
-    <div className="flex flex-col space-y-4 mt-8">
+    <>
+    <Nav_bar />
+    <div className="flex flex-col space-y-4 mt-8 pt-16">
       <h1 className="text-2xl font-bold mr-4 text-center">Danh sách hàng đã xuất</h1>
       <div className="w-full flex justify-center">
         <div className="w-3/5 border-t-2 border-blue-700"></div>
@@ -46,7 +50,14 @@ export default function BillExport() {
         </div>
       ) : (
         <div className="mt-8 w-full overflow-x-auto">
-          <h2 className="text-xl font-bold ml-4 text-blue-500">Danh sách sản phẩm</h2>
+          <div className="flex justify-center my-4">
+           <Link href="/ex_package/ListDLC">
+              <button className="style-button ">
+                Quay lại trang đại lý con
+              </button>
+            </Link>
+          </div>
+          <h2 className="text-xl font-bold text-blue-500 text-center">Danh sách sản phẩm</h2>
           <table className="min-w-full mt-4 border-collapse border border-gray-300">
             <thead>
               <tr className="bg-blue-200">
@@ -114,5 +125,6 @@ export default function BillExport() {
       )}
     </div>
     </div>
+    </>
   );
 }

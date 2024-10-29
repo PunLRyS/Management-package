@@ -1,5 +1,7 @@
 "use client";
+import Nav_bar from '@/app/components/Nav/Nav_bar';
 import React, { useEffect, useState } from 'react';
+import Link from 'next/link';
 
 export default function BillProduct() {
   const [productList, setProductList] = useState([]);
@@ -18,12 +20,22 @@ export default function BillProduct() {
   }, 0);
 
   return (
-    <div className="flex flex-col space-y-4 mt-8">
+    <>
+    <Nav_bar />
+    
+    <div className="flex flex-col space-y-4 mt-8 pt-16">
       <h1 className="text-2xl font-bold mr-4 text-center">Danh sách sản phẩm đã nhập</h1>
       <div className="w-full flex justify-center">
         <div className="w-3/5 border-t-2 border-blue-700"></div>
       </div>
 
+      <div className="mx-auto">
+      <Link href="/im_package/AddProduct">
+      <button className="style-button">
+        Quay lại trang nhập hàng 
+      </button>
+      </Link>
+      </div>
       {productList.length === 0 ? (
         <div className="mt-8 text-center">
           <p className="text-gray-500">Không có sản phẩm nào được nhập.</p>
@@ -75,5 +87,6 @@ export default function BillProduct() {
         </div>
       )}
     </div>
+    </>
   );
 }
