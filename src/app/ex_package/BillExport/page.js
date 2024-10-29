@@ -7,7 +7,13 @@ import Link from 'next/link';
 export default function BillExport() {
   const [exportedItems, setExportedItems] = useState([]);
   const [selectedDealers, setSelectedDealers] = useState([]);
+  const [dealers, setDealers] = useState([]); // Lưu trữ danh sách đại lý
+  const [loading, setLoading] = useState(true); // Trạng thái loading
+  const [error, setError] = useState(null); // Trạng thái lỗi
 
+  const [exportedData, setExportedData] = useState([]); // Lưu dữ liệu xuất hàng
+
+  
   useEffect(() => {
     // Lấy dữ liệu từ localStorage của các đại lý
     const dealersData = localStorage.getItem('selectedDealersData');
@@ -15,6 +21,29 @@ export default function BillExport() {
       setSelectedDealers(JSON.parse(dealersData));
     }
   }, []);
+
+  //////khi có api////////////////////////
+  useEffect(() => {
+    const fetchDealers = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/dealers'); // API lấy dữ liệu
+        if (!response.ok) {
+          throw new Error('Không thể tải danh sách đại lý!');
+        }
+        const data = await response.json(); // Chuyển đổi dữ liệu từ JSON
+        setDealers(data); // Lưu dữ liệu vào state
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+        setError(error.message); // Lưu lỗi vào state
+      } finally {
+        setLoading(false); // Dừng trạng thái loading
+      }
+    };
+
+    fetchDealers(); // Gọi hàm lấy dữ liệu
+  }, []);
+
+
 
 
   // Lấy dữ liệu từ localStorage khi trang được render
@@ -24,6 +53,29 @@ export default function BillExport() {
       setExportedItems(JSON.parse(items));
     }
   }, []);
+
+
+  ///////////////khi có api////////////////////////
+  useEffect(() => {
+    const fetchExportData = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/exports'); // API lấy dữ liệu xuất hàng
+        if (!response.ok) {
+          throw new Error('Không thể tải dữ liệu xuất hàng!');
+        }
+        const data = await response.json(); // Chuyển đổi dữ liệu từ JSON
+        setExportedData(data); // Lưu dữ liệu vào state
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+        setError(error.message); // Lưu lỗi vào state
+      } finally {
+        setLoading(false); // Dừng trạng thái loading
+      }
+    };
+
+    fetchExportData(); // Gọi hàm lấy dữ liệu
+  }, []);
+
 
   const totalPayment = exportedItems.reduce((total,item) => {
     return total + item.soLuong * item.gia;

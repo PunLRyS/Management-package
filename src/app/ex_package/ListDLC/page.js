@@ -1,6 +1,6 @@
 "use client";
-import React, { useState } from "react";
-import { ListDLC_dataMock as dataMock } from "../Mock/ListDLC_data";
+import React, { useState,useEffect } from "react";
+import { ListDLC_dataMock as dataMock } from "../Mock/ListDLC_data"; // có api hãy xóa data mock
 import { useRouter } from "next/navigation";
 import Nav_bar from "@/app/components/Nav/Nav_bar";
 import Link from "next/link";
@@ -11,6 +11,11 @@ export default function ListDLC() {
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
   const [currentDealer, setCurrentDealer] = useState(null);
+  const [backendDLC, setBackendDLC] = useState([]);
+
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+
   const [newDealer, setNewDealer] = useState({
     name: "",
     code: "",
@@ -20,6 +25,25 @@ export default function ListDLC() {
   const [selectedDealers, setSelectedDealers] = useState([]);
 
   const router = useRouter();
+
+  useEffect(() => {
+    const fetchDLC = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/hanghoa'); // Thay đổi URL cho phù hợp với backend của bạn
+        if (!response.ok) {
+          throw new Error('Network response was not ok'); // Kiểm tra phản hồi
+        }
+        const data = await response.json(); // Chuyển đổi phản hồi sang JSON
+        setBackendDLC(data); // Lưu dữ liệu vào state
+      } catch (error) {
+        setError(error); // Lưu lỗi vào state nếu có
+      } finally {
+        setLoading(false); // Đặt loading về false khi hoàn thành
+      }
+    };
+  
+    fetchDLC(); // Gọi hàm fetchData
+  }, []);
 
   const filteredPosts = data.posts.filter(
     (item) =>
@@ -116,7 +140,43 @@ export default function ListDLC() {
     localStorage.setItem('selectedDealersData', JSON.stringify(selectedDealersData)); // Lưu toàn bộ thông tin đại lý đã chọn
   };
   
+//////////////////////khi có api/////////////////////////
+  // const handleDealerSelect = async (dealerNumber) => {
+  //   try {
+  //     const updatedSelection = selectedDealers.includes(dealerNumber)
+  //       ? selectedDealers.filter((num) => num !== dealerNumber)
+  //       : [...selectedDealers, dealerNumber];
+  
+  //     setSelectedDealers(updatedSelection);
+  
+  //     // Lọc thông tin đại lý đã chọn
+  //     const selectedDealersData = data.posts.filter(item =>
+  //       updatedSelection.includes(item.number)
+  //     );
+  
+  //     // Gửi dữ liệu về backend
+  //     const response = await fetch('http://localhost:3000/api/dealers', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(selectedDealersData),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error('Không thể gửi dữ liệu đại lý!');
+  //     }
+  
+  //     const result = await response.json();
+  //     console.log('Dữ liệu đã được lưu thành công:', result);
+  
+  //   } catch (error) {
+  //     console.error('Lỗi khi gửi dữ liệu:', error);
+  //     alert('Đã xảy ra lỗi khi lưu dữ liệu đại lý!');
+  //   }
+  // };
 
+  
   const handleExportGoods = () => {
     if (selectedDealers.length === 0) {
       alert("Vui lòng chọn ít nhất một đại lý để xuất hàng.");

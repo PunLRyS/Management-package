@@ -14,6 +14,26 @@ export default function BillProduct() {
     }
   }, []);
 
+
+  //kết nối với API để lấy dữ liệu
+  useEffect(() => {
+    const fetchProducts = async () => {
+      try {
+        const response = await fetch('/api/products'); // Thay bằng API
+        if (!response.ok) {
+          throw new Error('Không thể lấy danh sách sản phẩm!');
+        }
+        const data = await response.json();
+        setProductList(data); // Cập nhật danh sách sản phẩm
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+        alert('Không thể tải danh sách sản phẩm!');
+      }
+    };
+
+    fetchProducts();
+  }, []);
+
   // Tính tổng số tiền cần thanh toán
   const totalPayment = productList.reduce((total, item) => {
     return total + item.soLuong * item.gia;

@@ -5,6 +5,9 @@ import Nav_bar from "@/app/components/Nav/Nav_bar";
 
 const Summary = () => {
   const [selectedDealers, setSelectedDealers] = useState([]);
+  const [dealers, setDealers] = useState([]); // Lưu trữ danh sách đại lý
+  const [loading, setLoading] = useState(true); // Trạng thái loading
+  const [error, setError] = useState(null); // Trạng thái lỗi
 
   useEffect(() => {
     // Lấy dữ liệu từ localStorage
@@ -13,6 +16,29 @@ const Summary = () => {
       setSelectedDealers(JSON.parse(dealersData));
     }
   }, []);
+
+
+  //////khi có api////////////////////////
+  useEffect(() => {
+    const fetchDealers = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/api/dealers'); // API lấy dữ liệu
+        if (!response.ok) {
+          throw new Error('Không thể tải danh sách đại lý!');
+        }
+        const data = await response.json(); // Chuyển đổi dữ liệu từ JSON
+        setDealers(data); // Lưu dữ liệu vào state
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+        setError(error.message); // Lưu lỗi vào state
+      } finally {
+        setLoading(false); // Dừng trạng thái loading
+      }
+    };
+
+    fetchDealers(); // Gọi hàm lấy dữ liệu
+  }, []);
+
 
   return (
     <>

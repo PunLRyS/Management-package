@@ -103,6 +103,33 @@ export default function AddProductForm() {
     setProductList([]);
   };
 
+  // const handleConfirmSend = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:5000/api/products', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(productList),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error('Gửi sản phẩm thất bại!');
+  //     }
+  
+  //     const result = await response.json(); // Kết quả trả về từ server
+  
+  //     console.log('Gửi thành công:', result);
+      
+  //     // Chuyển hướng đến trang BillProduct sau khi gửi thành công
+  //     router.push('/im_package/BillProduct');
+  //     setProductList([]);
+  //   } catch (error) {
+  //     console.error('Lỗi khi gửi sản phẩm:', error);
+  //     alert('Đã xảy ra lỗi khi gửi dữ liệu!');
+  //   }
+  // };
+
   return (
     <div className="flex flex-col space-y-4 mt-8">
         <h1 className="text-2xl font-bold mr-4 text-center">Hãy thêm hàng hóa bạn cần nhập tại đây</h1> 

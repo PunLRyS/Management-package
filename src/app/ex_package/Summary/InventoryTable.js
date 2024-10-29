@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { Inventory_dataMock } from '../../im_package/SearchProduct/Mock/Inventory_data';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 
 export default function InventoryTable() {
@@ -126,8 +127,46 @@ export default function InventoryTable() {
     router.push('/ex_package/BillExport'); // Điều hướng tới trang BillExport
   };
 
+  ////////hàm khi có api/////////
+  // const handleConfirmSend = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3000/api/exports', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(exportedItems), // Gửi dữ liệu về backend
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error('Không thể gửi dữ liệu xuất hàng!');
+  //     }
+  
+  //     const result = await response.json(); // Phản hồi từ server (nếu có)
+  //     console.log('Dữ liệu đã được gửi thành công:', result);
+  
+  //     // Điều hướng tới trang BillExport sau khi gửi thành công
+  //     router.push('/ex_package/BillExport');
+  //   } catch (error) {
+  //     console.error('Lỗi khi gửi dữ liệu:', error);
+  //     alert('Đã xảy ra lỗi khi gửi dữ liệu!');
+  //   }
+  // };
+
   return (
     <div>
+      <div className="flex gap-x-4 my-4 justify-center">
+      <Link href="/ex_package/ListDLC">
+      <button className="style-button">
+        Quay lại trang đại lý 
+      </button>
+      </Link>
+      <Link href="/ex_package/BillExport">
+      <button className="style-button">
+        Xem hóa đơn xuất hàng tại đây
+      </button>
+      </Link>
+      </div>
       <h1 className="text-xl text-blue-500 font-bold my-4 text-center">Danh sách hàng hóa</h1>
 
       {/* Input tìm kiếm */}
