@@ -53,24 +53,24 @@ useEffect(() => {
   fetchProductsNew();
 }, []);
 
-  // Kết hợp dữ liệu sau khi lấy từ hai API
-  useEffect(() => {
-    const fetchData = async () => {
-      setLoading(true); // Bắt đầu tải dữ liệu
-      await Promise.all([fetchProducts(), fetchProductsNew()]);
-      setLoading(false); // Kết thúc tải dữ liệu
-    };
-    fetchData();
-  }, []);
+  ///////// Kết hợp dữ liệu sau khi lấy từ hai API
+  // useEffect(() => {
+  //   const fetchData = async () => {
+  //     setLoading(true); // Bắt đầu tải dữ liệu
+  //     await Promise.all([fetchProducts(), fetchProductsNew()]);
+  //     setLoading(false); // Kết thúc tải dữ liệu
+  //   };
+  //   fetchData();
+  // }, []);
 
-  // Kết hợp dữ liệu từ hai API khi đã có kết quả
-  useEffect(() => {
-    const combined = [...backendProducts, ...backendProductsNew];
-    setCombinedProducts(combined);
-  }, [backendProducts, backendProductsNew]);
+  ////////// Kết hợp dữ liệu từ hai API khi đã có kết quả
+  // useEffect(() => {
+  //   const combined = [...backendProducts, ...backendProductsNew];
+  //   setCombinedProducts(combined);
+  // }, [backendProducts, backendProductsNew]);
 
-  if (loading) return <p>Đang tải dữ liệu...</p>;
-  if (error) return <p>Lỗi: {error}</p>;
+  // if (loading) return <p>Đang tải dữ liệu...</p>;
+  // if (error) return <p>Lỗi: {error}</p>;
 
 
 // Kết hợp dữ liệu từ backend và localStorage
