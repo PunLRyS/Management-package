@@ -27,4 +27,7 @@ body {
   .style-button{
     @apply bg-blue-700 rounded-lg p-4 text-white font-bold hover:bg-white hover:text-blue-500 hover:shadow-lg;
   }
+  .text-shadow {
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+  }
 }

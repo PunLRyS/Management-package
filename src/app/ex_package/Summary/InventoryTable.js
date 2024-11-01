@@ -1,12 +1,11 @@
 "use client"
-import React, { useState } from 'react';
-import { Inventory_dataMock } from '../../im_package/SearchProduct/Mock/Inventory_data';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 
 export default function InventoryTable() {
   // Khởi tạo các state cần thiết
-  const [posts, setPosts] = useState(Inventory_dataMock.posts); // Danh sách hàng hóa
   const [isOpen, setIsOpen] = useState(false); // Trạng thái của popup xuất hàng
   const [selectedItem, setSelectedItem] = useState(null); // Mặt hàng được chọn để xuất
   const [quantity, setQuantity] = useState(''); // Số lượng hàng xuất
@@ -15,6 +14,9 @@ export default function InventoryTable() {
   const [exportedItems, setExportedItems] = useState([]); // Danh sách hàng đã xuất
   const [isEditing, setIsEditing] = useState(false); // Trạng thái chỉnh sửa
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+  const [posts, setPosts] = useState([]); // Dữ liệu gốc từ API
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   const router = useRouter();
 
@@ -56,10 +58,10 @@ export default function InventoryTable() {
 
     const updatedItem = {
       id: selectedItem.id,
-      maHang: selectedItem.maHang,
-      tenHang: selectedItem.tenHang,
+      ma: selectedItem.ma,
+      ten: selectedItem.ten,
       soLuong: exportedQuantity,
-      gia: exportedPrice,
+      giaNhap: exportedPrice,
     };
   
     if (isEditing) {
@@ -117,8 +119,8 @@ export default function InventoryTable() {
 
   // Lọc danh sách hàng hóa theo từ khóa tìm kiếm
   const filteredPosts = posts.filter(item =>
-    item.tenHang.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    item.maHang.toLowerCase().includes(searchTerm.toLowerCase())
+    item.ten.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.ma.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const handleConfirmSend = () => {
@@ -126,8 +128,65 @@ export default function InventoryTable() {
     router.push('/ex_package/BillExport'); // Điều hướng tới trang BillExport
   };
 
+  useEffect(() => {
+    const fetchHangHoa = async () => {
+      try {
+        const response = await fetch('http://localhost:3000/hanghoa/get-du-lieu'); // Thay 'URL_API_CUA_BAN' bằng URL thực tế của API
+        if (!response.ok) {
+          throw new Error('Lỗi khi tải dữ liệu');
+        }
+        const data = await response.json();
+        setPosts(data);
+      } catch (error) {
+        setError(error.message);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHangHoa();
+  }, []);
+
+  ////////hàm khi có api/////////
+  // const handleConfirmSend = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3000/api/exports', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(exportedItems), // Gửi dữ liệu về backend
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error('Không thể gửi dữ liệu xuất hàng!');
+  //     }
+  
+  //     const result = await response.json(); // Phản hồi từ server (nếu có)
+  //     console.log('Dữ liệu đã được gửi thành công:', result);
+  
+  //     // Điều hướng tới trang BillExport sau khi gửi thành công
+  //     router.push('/ex_package/BillExport');
+  //   } catch (error) {
+  //     console.error('Lỗi khi gửi dữ liệu:', error);
+  //     alert('Đã xảy ra lỗi khi gửi dữ liệu!');
+  //   }
+  // };
+
   return (
     <div>
+      <div className="flex gap-x-4 my-4 justify-center">
+      <Link href="/ex_package/ListDLC">
+      <button className="style-button">
+        Quay lại trang đại lý 
+      </button>
+      </Link>
+      <Link href="/ex_package/BillExport">
+      <button className="style-button">
+        Xem hóa đơn xuất hàng tại đây
+      </button>
+      </Link>
+      </div>
       <h1 className="text-xl text-blue-500 font-bold my-4 text-center">Danh sách hàng hóa</h1>
 
       {/* Input tìm kiếm */}
@@ -143,7 +202,7 @@ export default function InventoryTable() {
       <table className="min-w-full border-collapse border border-gray-200">
         <thead>
           <tr>
-            <th className="border border-gray-200 p-2">ID</th>
+            <th className="border border-gray-200 p-2">STT</th>
             <th className="border border-gray-200 p-2">Mã hàng</th>
             <th className="border border-gray-200 p-2">Tên hàng</th>
             <th className="border border-gray-200 p-2">Số lượng</th>
@@ -152,13 +211,13 @@ export default function InventoryTable() {
           </tr>
         </thead>
         <tbody>
-          {filteredPosts.map(item => (
+          {filteredPosts.map((item, index) => (
             <tr key={item.id}>
-              <td className="border border-gray-200 p-2 text-center">{item.id}</td>
-              <td className="border border-gray-200 p-2 text-center">{item.maHang}</td>
-              <td className="border border-gray-200 p-2 text-center">{item.tenHang}</td>
+              <td className="border border-gray-200 p-2 text-center">{index + 1}</td>
+              <td className="border border-gray-200 p-2 text-center">{item.ma}</td>
+              <td className="border border-gray-200 p-2 text-center">{item.ten}</td>
               <td className="border border-gray-200 p-2 text-center">{item.soLuong}</td>
-              <td className="border border-gray-200 p-2 text-center">{item.gia.toLocaleString()} VNĐ</td>
+              <td className="border border-gray-200 p-2 text-center">{item.giaNhap.toLocaleString()} VNĐ</td>
               <td className="border border-gray-200 p-2 text-center">
                 <button
                   onClick={() => handleExportClick(item)} // Gọi hàm xuất hàng khi nhấn nút
@@ -185,22 +244,27 @@ export default function InventoryTable() {
       <table className="min-w-full border-collapse border border-gray-200">
         <thead>
           <tr>
-            <th className="border border-gray-200 p-2">ID</th>
+            <th className="border border-gray-200 p-2">STT</th>
             <th className="border border-gray-200 p-2">Mã hàng</th>
             <th className="border border-gray-200 p-2">Tên hàng</th>
             <th className="border border-gray-200 p-2">Số lượng</th>
             <th className="border border-gray-200 p-2">Giá</th>
+            <th className="border border-gray-200 p-2">Tổng giá</th>
             <th className="border border-gray-200 p-2">Chức năng</th>
+
           </tr>
         </thead>
         <tbody>
-          {exportedItems.map(item => (
+          {exportedItems.map((item, index)=> {
+                        const totalAmount = item.soLuong * item.giaNhap; 
+                        return (
             <tr key={item.id}>
-              <td className="border border-gray-200 p-2 text-center">{item.id}</td>
-              <td className="border border-gray-200 p-2 text-center">{item.maHang}</td>
-              <td className="border border-gray-200 p-2 text-center">{item.tenHang}</td>
+              <td className="border border-gray-200 p-2 text-center">{index + 1}</td>
+              <td className="border border-gray-200 p-2 text-center">{item.ma}</td>
+              <td className="border border-gray-200 p-2 text-center">{item.ten}</td>
               <td className="border border-gray-200 p-2 text-center">{item.soLuong}</td>
-              <td className="border border-gray-200 p-2 text-center">{item.gia.toLocaleString()} VNĐ</td>
+              <td className="border border-gray-200 p-2 text-center">{item.giaNhap.toLocaleString()} VNĐ</td>
+              <td className="border border-gray-200 p-2 text-center">{totalAmount.toLocaleString()} VNĐ</td>
               <td className="border border-gray-200 p-2 text-center">
                 <button
                   onClick={() => handleEdit(item)} // Gọi hàm chỉnh sửa khi nhấn nút
@@ -216,7 +280,7 @@ export default function InventoryTable() {
                 </button>
               </td>
             </tr>
-          ))}
+          )})}
         </tbody>
       </table>
 
@@ -225,7 +289,7 @@ export default function InventoryTable() {
         <div className="fixed inset-0 flex items-center justify-center bg-gray-600 bg-opacity-50">
           <div className="bg-white p-5 rounded shadow-lg">
             <h2 className="text-lg font-bold mb-4">
-              Nhập thông tin xuất hàng cho {selectedItem.tenHang}
+              Nhập thông tin xuất hàng cho {selectedItem.ten}
             </h2>
             <form onSubmit={handleSubmit}>
               <div className="mb-4">
