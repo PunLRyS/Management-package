@@ -1,6 +1,5 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Inventory_dataMock as dataMock } from "./Mock/Inventory_data";
 
 export default function Inventory() {
   const [localProducts, setLocalProducts] = useState([]);
@@ -11,14 +10,14 @@ export default function Inventory() {
   
   useEffect(() => {
     // Lấy danh sách sản phẩm từ localStorage
-    const storedProducts = localStorage.getItem('productList');
-    if (storedProducts) {
-      setLocalProducts(JSON.parse(storedProducts));
-    }
+    // const storedProducts = localStorage.getItem('productList');
+    // if (storedProducts) {
+    //   setLocalProducts(JSON.parse(storedProducts));
+    // }
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:3000/hanghoa'); // Thay đổi URL cho phù hợp với backend của bạn
+      const response = await fetch('http://localhost:3000/hanghoa/get-du-lieu'); // Thay đổi URL cho phù hợp với backend của bạn
       if (!response.ok) {
         throw new Error('Network response was not ok'); // Kiểm tra phản hồi
       }
@@ -35,23 +34,23 @@ export default function Inventory() {
 }, []);
 
 //kết nối với API để lấy dữ liệu của danh sách sản phẩm mới nhập
-useEffect(() => {
-  const fetchProductsNew = async () => {
-    try {
-      const response = await fetch('/api/products'); // Thay bằng API
-      if (!response.ok) {
-        throw new Error('Không thể lấy danh sách sản phẩm!');
-      }
-      const data = await response.json();
-      setBackendProductsNew(data); // Cập nhật danh sách sản phẩm
-    } catch (error) {
-      console.error('Lỗi khi lấy dữ liệu:', error);
-      alert('Không thể tải danh sách sản phẩm!');
-    }
-  };
+// useEffect(() => {
+//   const fetchProductsNew = async () => {
+//     try {
+//       const response = await fetch('/api/products'); // Thay bằng API
+//       if (!response.ok) {
+//         throw new Error('Không thể lấy danh sách sản phẩm!');
+//       }
+//       const data = await response.json();
+//       setBackendProductsNew(data); // Cập nhật danh sách sản phẩm
+//     } catch (error) {
+//       console.error('Lỗi khi lấy dữ liệu:', error);
+//       alert('Không thể tải danh sách sản phẩm!');
+//     }
+//   };
 
-  fetchProductsNew();
-}, []);
+//   fetchProductsNew();
+// }, []);
 
   ///////// Kết hợp dữ liệu sau khi lấy từ hai API
   // useEffect(() => {
@@ -78,9 +77,13 @@ const combinedData = [...backendProducts, ...localProducts];
 
 
   // Tính tổng giá trị hàng hóa
-  const totalValue = dataMock.posts.reduce((total, item) => {
-    return total + (item.soLuong * item.gia);
+  const totalValue = combinedData.reduce((total, item) => {
+    const itemTotal = item.soLuong * item.giaNhap; // Tính tổng giá cho từng sản phẩm
+    return total + (isNaN(itemTotal) ? 0 : itemTotal); // Kiểm tra nếu itemTotal là NaN
   }, 0);
+
+  if (loading) return <p>Đang tải dữ liệu...</p>;
+  if (error) return <p>Lỗi: {error.message}</p>;
 
   return (
     <div className="container mx-auto mt-8">
@@ -99,15 +102,15 @@ const combinedData = [...backendProducts, ...localProducts];
           </thead>
           <tbody>
             {combinedData.map((item, index) => {
-              const totalAmount = item.soLuong * item.gia; // Tính tổng giá cho từng sản phẩm
+              const totalAmount = item.soLuong * item.giaNhap; // Tính tổng giá cho từng sản phẩm
               return (
                 <tr key={item.id} className="hover:bg-blue-100">
                   <td className="border border-blue-400 p-2 text-center">{index + 1}</td>
-                  <td className="border border-blue-400 p-2">{item.maHang}</td>
-                  <td className="border border-blue-400 p-2">{item.tenHang}</td>
+                  <td className="border border-blue-400 p-2">{item.ma}</td>
+                  <td className="border border-blue-400 p-2">{item.ten}</td>
                   <td className="border border-blue-400 p-2 text-center">{item.soLuong}</td>
-                  <td className="border border-blue-400 p-2 text-right">{item.gia}</td>
-                  <td className="border border-blue-400 p-2 text-right">{totalAmount}</td>
+                  <td className="border border-blue-400 p-2 text-right">{item.giaNhap.toLocaleString()} VNĐ</td>
+                  <td className="border border-blue-400 p-2 text-right">{totalAmount.toLocaleString()} VNĐ</td>
                 </tr>
               );
             })}
@@ -115,7 +118,7 @@ const combinedData = [...backendProducts, ...localProducts];
           <tfoot>
             <tr>
               <td colSpan="5" className="border border-blue-400 p-2 text-right font-bold">Tổng giá trị hàng hóa:</td>
-              <td className="border border-blue-400 p-2 text-right">{totalValue}</td>
+              <td className="border border-blue-400 p-2 text-right">{totalValue.toLocaleString()} VNĐ</td>
             </tr>
           </tfoot>
         </table>

@@ -6,20 +6,20 @@ import Link from 'next/link';
 export default function BillProduct() {
   const [productList, setProductList] = useState([]);
 
-  useEffect(() => {
+  // useEffect(() => {
     // Lấy danh sách sản phẩm từ localStorage
-    const storedProducts = localStorage.getItem('productList');
-    if (storedProducts) {
-      setProductList(JSON.parse(storedProducts));
-    }
-  }, []);
+  //   const storedProducts = localStorage.getItem('productList');
+  //   if (storedProducts) {
+  //     setProductList(JSON.parse(storedProducts));
+  //   }
+  // }, []);
 
 
   //kết nối với API để lấy dữ liệu
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products'); // Thay bằng API
+        const response = await fetch('http://localhost:3000/phieu-nhap/find'); // Thay bằng API
         if (!response.ok) {
           throw new Error('Không thể lấy danh sách sản phẩm!');
         }

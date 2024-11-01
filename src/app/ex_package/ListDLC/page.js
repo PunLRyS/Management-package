@@ -1,12 +1,10 @@
 "use client";
 import React, { useState,useEffect } from "react";
-import { ListDLC_dataMock as dataMock } from "../Mock/ListDLC_data"; // có api hãy xóa data mock
 import { useRouter } from "next/navigation";
 import Nav_bar from "@/app/components/Nav/Nav_bar";
 import Link from "next/link";
 
 export default function ListDLC() {
-  const [data, setData] = useState(dataMock);
   const [searchTerm, setSearchTerm] = useState("");
   const [showAddForm, setShowAddForm] = useState(false);
   const [showEditForm, setShowEditForm] = useState(false);
@@ -17,10 +15,10 @@ export default function ListDLC() {
   const [loading, setLoading] = useState(true);
 
   const [newDealer, setNewDealer] = useState({
-    name: "",
-    code: "",
-    address: "",
-    sdt: "",
+    ten: "",
+    ma: "",
+    diaChi: "",
+    soDienThoai: "",
   });
   const [selectedDealers, setSelectedDealers] = useState([]);
 
@@ -29,7 +27,7 @@ export default function ListDLC() {
   useEffect(() => {
     const fetchDLC = async () => {
       try {
-        const response = await fetch('http://localhost:3000/hanghoa'); // Thay đổi URL cho phù hợp với backend của bạn
+        const response = await fetch('http://localhost:3000/nha-cung-cap'); // Thay đổi URL cho phù hợp với backend của bạn
         if (!response.ok) {
           throw new Error('Network response was not ok'); // Kiểm tra phản hồi
         }
@@ -45,17 +43,17 @@ export default function ListDLC() {
     fetchDLC(); // Gọi hàm fetchData
   }, []);
 
-  const filteredPosts = data.posts.filter(
+  const filteredPosts = backendDLC.filter(
     (item) =>
-      item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      item.number.includes(searchTerm) ||
-      item.code.includes(searchTerm)
+      item.ten.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      item.number?.includes(searchTerm) ||
+      item.ma.includes(searchTerm)
   );
 
-  const handleAddDealerSubmit = (e) => {
+  const handleAddDealerSubmit = async (e) => {
     e.preventDefault();
-    const maxNumber = data.posts.length
-      ? Math.max(...data.posts.map((item) => parseInt(item.number, 10)))
+    const maxNumber = backendDLC.length
+      ? Math.max(...backendDLC.map((item) => parseInt(item.number, 10)))
       : 0;
 
     const newDealerData = {
@@ -64,62 +62,79 @@ export default function ListDLC() {
       goods: [],
     };
 
-    setData((prevData) => ({
-      posts: [...prevData.posts, newDealerData],
-    }));
+    try {
+      // Gửi yêu cầu POST đến API để lưu đại lý mới
+      const response = await fetch('http://localhost:3000/nha-cung-cap/create-dai-ly', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newDealerData),
+      });
+  
+      if (!response.ok) {
+        throw new Error('Không thể thêm đại lý!');
+      }
+  
+      // Nhận phản hồi từ API (nếu cần)
+      const result = await response.json();
+      console.log('Đại lý đã được lưu:', result);
+      
+    setBackendDLC((prevBackendDLC) => [...prevBackendDLC, newDealerData],
+    );
 
     setShowAddForm(false);
     setNewDealer({
-      name: "",
-      code: "",
-      address: "",
-      sdt: "",
+      ten: "",
+      ma: "",
+      diaChi: "",
+      soDienThoai: "",
     });
+  } catch (error) {
+    console.error('Lỗi khi thêm đại lý:', error);
+    alert('Đã xảy ra lỗi khi thêm đại lý!');
+  }
   };
 
   const handleEditClick = (dealer) => {
     setCurrentDealer(dealer);
     setNewDealer({
-      name: dealer.name,
-      code: dealer.code,
-      address: dealer.address,
-      sdt: dealer.sdt,
+      ten: dealer.ten,
+      ma: dealer.ma,
+      diaChi: dealer.diaChi,
+      soDienThoai: dealer.soDienThoai,
     });
     setShowEditForm(true);
   };
 
   const handleEditDealerSubmit = (e) => {
     e.preventDefault();
-    setData((prevData) => ({
-      posts: prevData.posts.map((item) =>
-        item.number === currentDealer.number ? { ...currentDealer, ...newDealer } : item
+    console.log('Current Dealer:', currentDealer);
+    console.log('New Dealer Data:', newDealer);
+    setBackendDLC((prevBackendDLC) => 
+      prevBackendDLC.map((dealer) =>
+        dealer.id === currentDealer.id ? { ...dealer, ...newDealer } : dealer
       ),
-    }));
+    );
 
     setShowEditForm(false);
     setCurrentDealer(null);
     setNewDealer({
-      name: "",
-      code: "",
-      address: "",
-      sdt: "",
+      ten: "",
+      ma: "",
+      diaChi: "",
+      soDienThoai: "",
     });
   };
 
-  const handleDeleteClick = (dealerNumber) => {
+  const handleDeleteClick = (dealerId) => {
     if (window.confirm("Bạn có chắc chắn muốn xóa đại lý này không?")) {
-      setData((prevData) => {
-        const updatedPosts = prevData.posts
-          .filter((item) => item.number !== dealerNumber)
-          .map((item, index) => ({
-            ...item,
-            number: (index + 1).toString(),
-          }));
-
-        return { posts: updatedPosts };
+      setBackendDLC((prevBackendDLC) => {
+        return prevBackendDLC.filter((dealer) => dealer.id !== dealerId);
       });
     }
   };
+  
 
   const handleOverlayClick = (e) => {
     if (e.target === e.currentTarget) {
@@ -128,16 +143,16 @@ export default function ListDLC() {
     }
   };
 
-  const handleDealerSelect = (dealerNumber) => {
-    const updatedSelection = selectedDealers.includes(dealerNumber)
-      ? selectedDealers.filter((num) => num !== dealerNumber)
-      : [...selectedDealers, dealerNumber];
+  const handleDealerSelect = (dealerId) => {
+    const updatedSelection = selectedDealers.includes(dealerId)
+      ? selectedDealers.filter((id) => id !== dealerId)
+      : [...selectedDealers, dealerId];
   
     setSelectedDealers(updatedSelection);
   
     // Lưu vào localStorage
-    const selectedDealersData = data.posts.filter(item => updatedSelection.includes(item.number));
-    localStorage.setItem('selectedDealersData', JSON.stringify(selectedDealersData)); // Lưu toàn bộ thông tin đại lý đã chọn
+    const selectedDealersData = backendDLC.filter(item => updatedSelection.includes(item.id));
+    localStorage.setItem('selectedDealersData', JSON.stringify(selectedDealersData));
   };
   
 //////////////////////khi có api/////////////////////////
@@ -235,9 +250,9 @@ export default function ListDLC() {
               <label className="block mb-1">Tên đại lý:</label>
               <input
                 type="text"
-                value={newDealer.name}
+                value={newDealer.ten}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, name: e.target.value })
+                  setNewDealer({ ...newDealer, ten: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -247,9 +262,9 @@ export default function ListDLC() {
               <label className="block mb-1">Mã đại lý:</label>
               <input
                 type="text"
-                value={newDealer.code}
+                value={newDealer.ma}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, code: e.target.value })
+                  setNewDealer({ ...newDealer, ma: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -259,9 +274,9 @@ export default function ListDLC() {
               <label className="block mb-1">Địa chỉ:</label>
               <input
                 type="text"
-                value={newDealer.address}
+                value={newDealer.diaChi}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, address: e.target.value })
+                  setNewDealer({ ...newDealer, diaChi: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -271,9 +286,9 @@ export default function ListDLC() {
               <label className="block mb-1">Số điện thoại:</label>
               <input
                 type="text"
-                value={newDealer.sdt}
+                value={newDealer.soDienThoai}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, sdt: e.target.value })
+                  setNewDealer({ ...newDealer, soDienThoai: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -302,9 +317,9 @@ export default function ListDLC() {
               <label className="block mb-1">Tên đại lý:</label>
               <input
                 type="text"
-                value={newDealer.name}
+                value={newDealer.ten}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, name: e.target.value })
+                  setNewDealer({ ...newDealer, ten: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -314,9 +329,9 @@ export default function ListDLC() {
               <label className="block mb-1">Mã đại lý:</label>
               <input
                 type="text"
-                value={newDealer.code}
+                value={newDealer.ma}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, code: e.target.value })
+                  setNewDealer({ ...newDealer, ma: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -326,9 +341,9 @@ export default function ListDLC() {
               <label className="block mb-1">Địa chỉ:</label>
               <input
                 type="text"
-                value={newDealer.address}
+                value={newDealer.diaChi}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, address: e.target.value })
+                  setNewDealer({ ...newDealer, diaChi: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -338,9 +353,9 @@ export default function ListDLC() {
               <label className="block mb-1">Số điện thoại:</label>
               <input
                 type="text"
-                value={newDealer.sdt}
+                value={newDealer.soDienThoai}
                 onChange={(e) =>
-                  setNewDealer({ ...newDealer, sdt: e.target.value })
+                  setNewDealer({ ...newDealer, soDienThoai: e.target.value })
                 }
                 className="border border-gray-300 p-2 rounded w-full"
                 required
@@ -373,14 +388,14 @@ export default function ListDLC() {
               <td className="border border-gray-200 p-2 text-center">
                 <input
                   type="checkbox"
-                  onChange={() => handleDealerSelect(item.number)}
+                  onChange={() => handleDealerSelect(item.id)}
                 />
               </td>
               <td className="border border-gray-200 p-2">{index + 1}</td>
-              <td className="border border-gray-200 p-2">{item.name}</td>
-              <td className="border border-gray-200 p-2">{item.code}</td>
-              <td className="border border-gray-200 p-2">{item.address}</td>
-              <td className="border border-gray-200 p-2">{item.sdt}</td>
+              <td className="border border-gray-200 p-2">{item.ten}</td>
+              <td className="border border-gray-200 p-2">{item.ma}</td>
+              <td className="border border-gray-200 p-2">{item.diaChi}</td>
+              <td className="border border-gray-200 p-2">{item.soDienThoai}</td>
               <td className="border border-gray-200 p-2">
                 <div className="flex justify-center space-x-2">
                 <button
@@ -390,7 +405,7 @@ export default function ListDLC() {
                   Sửa
                 </button>
                 <button
-                  onClick={() => handleDeleteClick(item.number)}
+                  onClick={() => handleDeleteClick(item.id)}
                   className="style-button"
                 >
                   Xóa

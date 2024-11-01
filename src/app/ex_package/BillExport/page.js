@@ -23,25 +23,25 @@ export default function BillExport() {
   }, []);
 
   //////khi có api////////////////////////
-  useEffect(() => {
-    const fetchDealers = async () => {
-      try {
-        const response = await fetch('http://localhost:3000/api/dealers'); // API lấy dữ liệu
-        if (!response.ok) {
-          throw new Error('Không thể tải danh sách đại lý!');
-        }
-        const data = await response.json(); // Chuyển đổi dữ liệu từ JSON
-        setDealers(data); // Lưu dữ liệu vào state
-      } catch (error) {
-        console.error('Lỗi khi lấy dữ liệu:', error);
-        setError(error.message); // Lưu lỗi vào state
-      } finally {
-        setLoading(false); // Dừng trạng thái loading
-      }
-    };
+  // useEffect(() => {
+  //   const fetchDealers = async () => {
+  //     try {
+  //       const response = await fetch('http://localhost:3000/api/dealers'); // API lấy dữ liệu
+  //       if (!response.ok) {
+  //         throw new Error('Không thể tải danh sách đại lý!');
+  //       }
+  //       const data = await response.json(); // Chuyển đổi dữ liệu từ JSON
+  //       setDealers(data); // Lưu dữ liệu vào state
+  //     } catch (error) {
+  //       console.error('Lỗi khi lấy dữ liệu:', error);
+  //       setError(error.message); // Lưu lỗi vào state
+  //     } finally {
+  //       setLoading(false); // Dừng trạng thái loading
+  //     }
+  //   };
 
-    fetchDealers(); // Gọi hàm lấy dữ liệu
-  }, []);
+  //   fetchDealers(); // Gọi hàm lấy dữ liệu
+  // }, []);
 
 
 
@@ -78,7 +78,7 @@ export default function BillExport() {
 
 
   const totalPayment = exportedItems.reduce((total,item) => {
-    return total + item.soLuong * item.gia;
+    return total + item.soLuong * item.giaNhap;
   }, 0);
 
   return (
@@ -123,15 +123,15 @@ export default function BillExport() {
             </thead>
             <tbody>
               {exportedItems.map((item, index) => {
-                const totalAmount = item.soLuong * item.gia;
+                const totalAmount = item.soLuong * item.giaNhap;
                 return (
                   <tr key={index} className="bg-gray-100">
                     <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.maHang}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.tenHang}</td>
+                    <td className="border border-gray-300 p-2 text-center">{item.ma}</td>
+                    <td className="border border-gray-300 p-2 text-center">{item.ten}</td>
                     <td className="border border-gray-300 p-2 text-center">{item.soLuong}</td>
-                    <td className="border border-gray-300 p-2 text-right">{item.gia}</td>
-                    <td className="border border-gray-300 p-2 text-right">{totalAmount}</td>
+                    <td className="border border-gray-300 p-2 text-right">{item.giaNhap}</td>
+                    <td className="border border-gray-300 p-2 text-right">{totalAmount.toLocaleString()} VNĐ</td>
                   </tr>
                 );
               })}
@@ -139,7 +139,7 @@ export default function BillExport() {
             <tfoot>
               <tr>
                 <td colSpan="5" className="border border-gray-300 p-2 text-right font-bold">Tổng số tiền cần thanh toán:</td>
-                <td className="border border-gray-300 p-2 text-right font-bold">{totalPayment}</td>
+                <td className="border border-gray-300 p-2 text-right font-bold">{totalPayment.toLocaleString()} VNĐ</td>
               </tr>
             </tfoot>
           </table>
@@ -166,10 +166,10 @@ export default function BillExport() {
             {selectedDealers.map((item, index) => (
               <tr key={item.number}>
                 <td className="border border-gray-200 p-2 text-center">{index + 1}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.name}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.code}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.address}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.sdt}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.ten}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.ma}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.diaChi}</td>
+                <td className="border border-gray-200 p-2 text-center">{item.soDienThoai}</td>
               </tr>
             ))}
           </tbody>
