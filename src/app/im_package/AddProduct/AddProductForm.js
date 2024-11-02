@@ -18,12 +18,12 @@ export default function AddProductForm() {
     soLuong: '',
     gia: '',
     ngayNhapHang: '', 
-    nhaCungCap: {
-      maNCC: '',
-      tenNCC: '',
-      diaChi: '',
-      soDienThoai: ''
-    }
+    // nhaCungCap: {
+    //   maNCC: '',
+    //   tenNCC: '',
+    //   diaChi: '',
+    //   soDienThoai: ''
+    // }
   });
 
   const router = useRouter();
@@ -31,20 +31,10 @@ export default function AddProductForm() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name in product.nhaCungCap) {
-      setProduct((prevState) => ({
-        ...prevState,
-        nhaCungCap: {
-          ...prevState.nhaCungCap,
-          [name]: value
-        }
-      }));
-    } else {
-      setProduct({
-        ...product,
-        [name]: value
-      });
-    }
+    setProduct({
+      ...product,
+      [name]: value
+    });
   };
 
   const handleSubmit = (e) => {
@@ -69,12 +59,12 @@ export default function AddProductForm() {
       soLuong: '',
       gia: '',
       ngayNhapHang: '', 
-      nhaCungCap: {
-        maNCC: '',
-        tenNCC: '',
-        diaChi: '',
-        soDienThoai: ''
-      }
+      // nhaCungCap: {
+      //   maNCC: '',
+      //   tenNCC: '',
+      //   diaChi: '',
+      //   soDienThoai: ''
+      // }
     });
   };
 
@@ -96,40 +86,40 @@ export default function AddProductForm() {
     item.maHang.toLowerCase().includes(searchTerm.toLowerCase())   // Tìm theo mã hàng
   );
 
-  // const handleConfirmSend = () => {
-  //   localStorage.setItem('productList', JSON.stringify(productList));
-  //   // Chuyển hướng đến trang billproduct và truyền dữ liệu sản phẩm
-  //   router.push('/im_package/BillProduct');
-  //   setProductList([]);
-  // };
-
-
-  const handleConfirmSend = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/phieu-nhap/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productList),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Gửi sản phẩm thất bại!');
-      }
-  
-      const result = await response.json(); // Kết quả trả về từ server
-  
-      console.log('Gửi thành công:', result);
-      
-      // Chuyển hướng đến trang BillProduct sau khi gửi thành công
-      router.push('/im_package/BillProduct');
-      setProductList([]);
-    } catch (error) {
-      console.error('Lỗi khi gửi sản phẩm:', error);
-      alert('Đã xảy ra lỗi khi gửi dữ liệu!');
-    }
+  const handleConfirmSend = () => {
+    localStorage.setItem('productList', JSON.stringify(productList));
+    // Chuyển hướng đến trang billproduct và truyền dữ liệu sản phẩm
+    router.push('/im_package/Supplier');
+    setProductList([]);
   };
+
+
+  // const handleConfirmSend = async () => {
+  //   try {
+  //     const response = await fetch('http://localhost:3000/phieu-nhap/create', {
+  //       method: 'POST',
+  //       headers: {
+  //         'Content-Type': 'application/json',
+  //       },
+  //       body: JSON.stringify(productList),
+  //     });
+  
+  //     if (!response.ok) {
+  //       throw new Error('Gửi sản phẩm thất bại!');
+  //     }
+  
+  //     const result = await response.json(); // Kết quả trả về từ server
+  
+  //     console.log('Gửi thành công:', result);
+      
+  //     // Chuyển hướng đến trang BillProduct sau khi gửi thành công
+  //     router.push('/im_package/BillProduct');
+  //     setProductList([]);
+  //   } catch (error) {
+  //     console.error('Lỗi khi gửi sản phẩm:', error);
+  //     alert('Đã xảy ra lỗi khi gửi dữ liệu!');
+  //   }
+  // };
 
   return (
     <div className="flex flex-col space-y-4 mt-8">
@@ -220,7 +210,7 @@ export default function AddProductForm() {
               </div>
              
               <div className="col-span-2">
-                <h3 className="text-lg font-semibold mb-2 text-blue-500">Nhà cung cấp</h3>
+                {/* <h3 className="text-lg font-semibold mb-2 text-blue-500">Nhà cung cấp</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
                     <label className="block text-sm font-medium">Mã nhà cung cấp</label>
@@ -266,8 +256,8 @@ export default function AddProductForm() {
                       required
                     />
                   </div>
-                </div>
-              </div>
+                </div>*/}
+              </div> 
             </div>
             <div className="mt-4 flex justify-between items-center">
                <div>
@@ -303,7 +293,7 @@ export default function AddProductForm() {
           <button
             className="ml-auto text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg mr-4"
             onClick={() => setConfirmationOpen(true)}>
-            Gửi đơn hàng tới đại lý
+            Gửi đơn hàng tới nhà cung cấp
           </button>
           </div>
           <div className="mt-4 overflow-x-auto">
@@ -316,7 +306,7 @@ export default function AddProductForm() {
         <th className="px-4 py-2 border-b">Mô tả</th>
         <th className="px-4 py-2 border-b">Số lượng</th>
         <th className="px-4 py-2 border-b">Giá</th>
-        <th className="px-4 py-2 border-b">Nhà cung cấp</th>
+        {/* <th className="px-4 py-2 border-b">Nhà cung cấp</th> */}
         <th className="px-4 py-2 border-b">Tổng số tiền</th>
         <th className="px-4 py-2 border-b">Chức năng</th>
       </tr>
@@ -332,9 +322,9 @@ export default function AddProductForm() {
             <td className="px-4 py-2 border-b">{item.moTa}</td>
             <td className="px-4 py-2 border-b">{item.soLuong}</td>
             <td className="px-4 py-2 border-b">{item.gia}</td>
-            <td className="px-4 py-2 border-b">
+            {/* <td className="px-4 py-2 border-b">
               {item.nhaCungCap.maNCC} - {item.nhaCungCap.tenNCC} - {item.nhaCungCap.diaChi} - {item.nhaCungCap.soDienThoai}
-            </td>
+            </td> */}
             <td className="px-4 py-2 border-b">{totalAmount}</td>
             <td className="px-4 py-2 border-b">
               <div className="flex justify-center space-x-2">

@@ -123,15 +123,47 @@ export default function InventoryTable() {
     item.ma.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
-  const handleConfirmSend = () => {
-    localStorage.setItem('exportedItems', JSON.stringify(exportedItems)); // Lưu vào localStorage
-    router.push('/ex_package/BillExport'); // Điều hướng tới trang BillExport
+  const handleConfirmSend = async () => {
+    try {
+      // Lưu danh sách mặt hàng đã xuất vào localStorage
+      localStorage.setItem('exportedItems', JSON.stringify(exportedItems));
+  
+      // Cập nhật số lượng hàng hóa trong cơ sở dữ liệu
+      const updatedPosts = posts.map(post => {
+        const exportedItem = exportedItems.find(item => item.id === post.id);
+        // if (exportedItem) {
+        //   return { ...post, soLuong: post.soLuong - exportedItem.soLuong };
+        // }
+        return post;
+      });
+  
+      // Gửi yêu cầu PUT cho từng mặt hàng
+      for (const item of updatedPosts) {
+        const updateResponse = await fetch(`http://localhost:3000/hanghoa/update/${item.id}`, {
+          method: 'PUT', // Sử dụng PUT để cập nhật
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ soLuong: item.soLuong }), // Gửi số lượng đã cập nhật cho từng mặt hàng
+        });
+  
+        if (!updateResponse.ok) {
+          throw new Error(`Không thể cập nhật số lượng hàng hóa với ID ${item.id}!`);
+        }
+      }
+  
+      // Nếu mọi thứ đều ổn, điều hướng tới trang BillExport
+      router.push('/ex_package/BillExport');
+    } catch (error) {
+      console.error('Lỗi khi gửi dữ liệu:', error);
+      alert('Đã xảy ra lỗi khi gửi dữ liệu!');
+    }
   };
 
   useEffect(() => {
     const fetchHangHoa = async () => {
       try {
-        const response = await fetch('http://localhost:3000/hanghoa/get-du-lieu'); // Thay 'URL_API_CUA_BAN' bằng URL thực tế của API
+        const response = await fetch('http://localhost:3000/hanghoa/get-du-lieu'); 
         if (!response.ok) {
           throw new Error('Lỗi khi tải dữ liệu');
         }
