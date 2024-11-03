@@ -12,18 +12,12 @@ export default function AddProductForm() {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   const [product, setProduct] = useState({
-    maHang: '',
-    tenHang: '',
-    moTa: '',
-    soLuong: '',
-    gia: '',
+    ma: '',
+    ten: '',
+    description: '',
+    soLuong: null,
+    giaNhap: null,
     ngayNhapHang: '', 
-    // nhaCungCap: {
-    //   maNCC: '',
-    //   tenNCC: '',
-    //   diaChi: '',
-    //   soDienThoai: ''
-    // }
   });
 
   const router = useRouter();
@@ -33,7 +27,7 @@ export default function AddProductForm() {
     const { name, value } = e.target;
     setProduct({
       ...product,
-      [name]: value
+      [name]: name === "soLuong" || name === "giaNhap" ? Number(value) : value
     });
   };
 
@@ -53,11 +47,11 @@ export default function AddProductForm() {
 
   const resetForm = () => {
     setProduct({
-      maHang: '',
-      tenHang: '',
-      moTa: '',
-      soLuong: '',
-      gia: '',
+      ma: '',
+      ten: '',
+      description: '',
+      soLuong: null,
+      giaNhap: null,
       ngayNhapHang: '', 
       // nhaCungCap: {
       //   maNCC: '',
@@ -82,8 +76,8 @@ export default function AddProductForm() {
 
   // Hàm xử lý tìm kiếm
   const filteredProducts = productList.filter(item => 
-    item.tenHang.toLowerCase().includes(searchTerm.toLowerCase()) || // Tìm theo tên hàng
-    item.maHang.toLowerCase().includes(searchTerm.toLowerCase())   // Tìm theo mã hàng
+    item.ten.toLowerCase().includes(searchTerm.toLowerCase()) || // Tìm theo tên hàng
+    item.ma.toLowerCase().includes(searchTerm.toLowerCase())   // Tìm theo mã hàng
   );
 
   const handleConfirmSend = () => {
@@ -93,33 +87,57 @@ export default function AddProductForm() {
     setProductList([]);
   };
 
+//   const handleConfirmSend = async () => {
+//     // Lưu danh sách sản phẩm vào localStorage
+//     localStorage.setItem('productList', JSON.stringify(productList));
+//     console.log('Dữ liệu đã được lưu:', productList);
+  
+//     if (productList) {
+//       // Tạo mảng products mới, bỏ qua trường không cần thiết
+//       const products = productList.map(product => {
+//         return {
+//           ma: product.ma,
+//           ten: product.ten,
+//           description: product.moTa || "",
+//           soLuong: Number(product.soLuong) || 0,
+//           giaNhap: Number(product.giaNhap) || 0,
+//         };
+//       });
+  
+//       // Kiểm tra dữ liệu trước khi gửi
+//       console.log('Dữ liệu gửi đi:', products);
+  
+//       try {
+//         // Duyệt qua từng sản phẩm và gửi riêng từng sản phẩm
+//         for (const product of products) {
+//           const response = await fetch('http://localhost:3000/hanghoa/create-hang-hoa', {
+//             method: 'POST',
+//             headers: {
+//               'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify(product), // Gửi từng sản phẩm một
+//           });
+  
+//           // Nếu phản hồi không thành công, ném lỗi để dừng việc gửi tiếp
+//           if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//           }
+  
+//           // Lấy dữ liệu phản hồi từ API sau khi gửi thành công
+//           const data = await response.json();
+//           console.log('Dữ liệu đã được gửi thành công:', data);
+//         }
+        
+//         // Điều hướng đến trang khác sau khi gửi thành công
+//         router.push('/im_package/Supplier');
+//         setProductList([]); // Xóa danh sách sản phẩm sau khi gửi
+//       } catch (error) {
+//         // Xử lý lỗi khi gửi dữ liệu vào cơ sở dữ liệu
+//         console.error('Lỗi khi gửi dữ liệu vào cơ sở dữ liệu:', error);
+//       }
+//     }
+// };
 
-  // const handleConfirmSend = async () => {
-  //   try {
-  //     const response = await fetch('http://localhost:3000/phieu-nhap/create', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(productList),
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error('Gửi sản phẩm thất bại!');
-  //     }
-  
-  //     const result = await response.json(); // Kết quả trả về từ server
-  
-  //     console.log('Gửi thành công:', result);
-      
-  //     // Chuyển hướng đến trang BillProduct sau khi gửi thành công
-  //     router.push('/im_package/BillProduct');
-  //     setProductList([]);
-  //   } catch (error) {
-  //     console.error('Lỗi khi gửi sản phẩm:', error);
-  //     alert('Đã xảy ra lỗi khi gửi dữ liệu!');
-  //   }
-  // };
 
   return (
     <div className="flex flex-col space-y-4 mt-8">
@@ -159,8 +177,8 @@ export default function AddProductForm() {
                 <label className="block text-sm font-medium">Mã hàng</label>
                 <input
                   type="text"
-                  name="maHang"
-                  value={product.maHang}
+                  name="ma"
+                  value={product.ma}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                   required
@@ -170,8 +188,8 @@ export default function AddProductForm() {
                 <label className="block text-sm font-medium">Tên hàng</label>
                 <input
                   type="text"
-                  name="tenHang"
-                  value={product.tenHang}
+                  name="ten"
+                  value={product.ten}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                   required
@@ -180,8 +198,8 @@ export default function AddProductForm() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium">Mô tả</label>
                 <textarea
-                  name="moTa"
-                  value={product.moTa}
+                  name="description"
+                  value={product.description}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                 />
@@ -201,63 +219,13 @@ export default function AddProductForm() {
                 <label className="block text-sm font-medium">Giá</label>
                 <input
                   type="number"
-                  name="gia"
-                  value={product.gia}
+                  name="giaNhap"
+                  value={product.giaNhap}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                   required
                 />
               </div>
-             
-              <div className="col-span-2">
-                {/* <h3 className="text-lg font-semibold mb-2 text-blue-500">Nhà cung cấp</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium">Mã nhà cung cấp</label>
-                    <input
-                      type="text"
-                      name="maNCC"
-                      value={product.nhaCungCap.maNCC}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Tên nhà cung cấp</label>
-                    <input
-                      type="text"
-                      name="tenNCC"
-                      value={product.nhaCungCap.tenNCC}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Địa chỉ cung cấp</label>
-                    <input
-                      type="text"
-                      name="diaChi"
-                      value={product.nhaCungCap.diaChi}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Số điện thoại</label>
-                    <input
-                      type="text"
-                      name="soDienThoai"
-                      value={product.nhaCungCap.soDienThoai}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                </div>*/}
-              </div> 
             </div>
             <div className="mt-4 flex justify-between items-center">
                <div>
@@ -313,18 +281,15 @@ export default function AddProductForm() {
     </thead>
     <tbody>
       {filteredProducts.map((item, index) => {
-        const totalAmount = item.soLuong * item.gia; // Tính tổng số tiền
+        const totalAmount = item.soLuong * item.giaNhap; // Tính tổng số tiền
         return (
           <tr key={index} className="text-center">
             <td className="px-4 py-2 border-b">{item.ngayNhapHang}</td>
-            <td className="px-4 py-2 border-b">{item.maHang}</td>
-            <td className="px-4 py-2 border-b">{item.tenHang}</td>
-            <td className="px-4 py-2 border-b">{item.moTa}</td>
+            <td className="px-4 py-2 border-b">{item.ma}</td>
+            <td className="px-4 py-2 border-b">{item.ten}</td>
+            <td className="px-4 py-2 border-b">{item.description}</td>
             <td className="px-4 py-2 border-b">{item.soLuong}</td>
-            <td className="px-4 py-2 border-b">{item.gia}</td>
-            {/* <td className="px-4 py-2 border-b">
-              {item.nhaCungCap.maNCC} - {item.nhaCungCap.tenNCC} - {item.nhaCungCap.diaChi} - {item.nhaCungCap.soDienThoai}
-            </td> */}
+            <td className="px-4 py-2 border-b">{item.giaNhap}</td>
             <td className="px-4 py-2 border-b">{totalAmount}</td>
             <td className="px-4 py-2 border-b">
               <div className="flex justify-center space-x-2">

@@ -111,8 +111,13 @@ export default function InventoryTable() {
 
   // Hàm xử lý khi nhấn nút "Xóa" trên mục đã xuất
   const handleDelete = (id) => {
-    if (window.confirm('Bạn có chắc chắn muốn xóa không?')) {
-      // Xác nhận xóa
+    const itemToDelete = exportedItems.find(item => item.id === id); // Tìm mục cần xóa
+
+  if (window.confirm('Bạn có chắc chắn muốn xóa không?')) {
+    // Cập nhật lại số lượng trong danh sách hàng hóa
+    setPosts(posts.map(post =>
+      post.id === id ? { ...post, soLuong: post.soLuong + itemToDelete.soLuong } : post
+    ));
       setExportedItems(exportedItems.filter(item => item.id !== id)); // Lọc và xóa mục
     }
   };
@@ -128,7 +133,6 @@ export default function InventoryTable() {
       // Lưu danh sách mặt hàng đã xuất vào localStorage
       localStorage.setItem('exportedItems', JSON.stringify(exportedItems));
   
-      // Cập nhật số lượng hàng hóa trong cơ sở dữ liệu
       const updatedPosts = posts.map(post => {
         const exportedItem = exportedItems.find(item => item.id === post.id);
         // if (exportedItem) {
@@ -178,32 +182,6 @@ export default function InventoryTable() {
 
     fetchHangHoa();
   }, []);
-
-  ////////hàm khi có api/////////
-  // const handleConfirmSend = async () => {
-  //   try {
-  //     const response = await fetch('http://localhost:3000/api/exports', {
-  //       method: 'POST',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //       body: JSON.stringify(exportedItems), // Gửi dữ liệu về backend
-  //     });
-  
-  //     if (!response.ok) {
-  //       throw new Error('Không thể gửi dữ liệu xuất hàng!');
-  //     }
-  
-  //     const result = await response.json(); // Phản hồi từ server (nếu có)
-  //     console.log('Dữ liệu đã được gửi thành công:', result);
-  
-  //     // Điều hướng tới trang BillExport sau khi gửi thành công
-  //     router.push('/ex_package/BillExport');
-  //   } catch (error) {
-  //     console.error('Lỗi khi gửi dữ liệu:', error);
-  //     alert('Đã xảy ra lỗi khi gửi dữ liệu!');
-  //   }
-  // };
 
   return (
     <div>

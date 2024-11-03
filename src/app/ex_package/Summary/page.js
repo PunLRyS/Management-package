@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import InventoryTable from "./InventoryTable";
 import Nav_bar from "@/app/components/Nav/Nav_bar";
 
-const Summary = () => {
+ export default function Summary() {
   const [selectedDealers, setSelectedDealers] = useState([]);
   const [dealers, setDealers] = useState([]); // Lưu trữ danh sách đại lý
   const [loading, setLoading] = useState(true); // Trạng thái loading
@@ -16,7 +16,7 @@ const Summary = () => {
       setSelectedDealers(JSON.parse(dealersData));
     }
   }, []);
-  
+
   return (
     <>
     <Nav_bar />
@@ -56,4 +56,3 @@ const Summary = () => {
   );
 };
 
-export default Summary;

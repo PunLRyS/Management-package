@@ -114,7 +114,7 @@ export default function ListDLC() {
     e.preventDefault();
   
     try {
-      const response = await fetch(`http://localhost:3000/daily/${currentDealer.id}`, {
+      const response = await fetch(`http://localhost:3000/daily/edit/${currentDealer.id}`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',
