@@ -12,18 +12,12 @@ export default function AddProductForm() {
   const [confirmationOpen, setConfirmationOpen] = useState(false);
 
   const [product, setProduct] = useState({
-    maHang: '',
-    tenHang: '',
-    moTa: '',
-    soLuong: '',
-    gia: '',
+    ma: '',
+    ten: '',
+    description: '',
+    soLuong: null,
+    giaNhap: null,
     ngayNhapHang: '', 
-    nhaCungCap: {
-      maNCC: '',
-      tenNCC: '',
-      diaChi: '',
-      soDienThoai: ''
-    }
   });
 
   const router = useRouter();
@@ -31,20 +25,10 @@ export default function AddProductForm() {
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
-    if (name in product.nhaCungCap) {
-      setProduct((prevState) => ({
-        ...prevState,
-        nhaCungCap: {
-          ...prevState.nhaCungCap,
-          [name]: value
-        }
-      }));
-    } else {
-      setProduct({
-        ...product,
-        [name]: value
-      });
-    }
+    setProduct({
+      ...product,
+      [name]: name === "soLuong" || name === "giaNhap" ? Number(value) : value
+    });
   };
 
   const handleSubmit = (e) => {
@@ -63,18 +47,18 @@ export default function AddProductForm() {
 
   const resetForm = () => {
     setProduct({
-      maHang: '',
-      tenHang: '',
-      moTa: '',
-      soLuong: '',
-      gia: '',
+      ma: '',
+      ten: '',
+      description: '',
+      soLuong: null,
+      giaNhap: null,
       ngayNhapHang: '', 
-      nhaCungCap: {
-        maNCC: '',
-        tenNCC: '',
-        diaChi: '',
-        soDienThoai: ''
-      }
+      // nhaCungCap: {
+      //   maNCC: '',
+      //   tenNCC: '',
+      //   diaChi: '',
+      //   soDienThoai: ''
+      // }
     });
   };
 
@@ -92,44 +76,68 @@ export default function AddProductForm() {
 
   // Hàm xử lý tìm kiếm
   const filteredProducts = productList.filter(item => 
-    item.tenHang.toLowerCase().includes(searchTerm.toLowerCase()) || // Tìm theo tên hàng
-    item.maHang.toLowerCase().includes(searchTerm.toLowerCase())   // Tìm theo mã hàng
+    item.ten.toLowerCase().includes(searchTerm.toLowerCase()) || // Tìm theo tên hàng
+    item.ma.toLowerCase().includes(searchTerm.toLowerCase())   // Tìm theo mã hàng
   );
 
-  // const handleConfirmSend = () => {
-  //   localStorage.setItem('productList', JSON.stringify(productList));
-  //   // Chuyển hướng đến trang billproduct và truyền dữ liệu sản phẩm
-  //   router.push('/im_package/BillProduct');
-  //   setProductList([]);
-  // };
-
-
-  const handleConfirmSend = async () => {
-    try {
-      const response = await fetch('http://localhost:3000/phieu-nhap/create', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(productList),
-      });
-  
-      if (!response.ok) {
-        throw new Error('Gửi sản phẩm thất bại!');
-      }
-  
-      const result = await response.json(); // Kết quả trả về từ server
-  
-      console.log('Gửi thành công:', result);
-      
-      // Chuyển hướng đến trang BillProduct sau khi gửi thành công
-      router.push('/im_package/BillProduct');
-      setProductList([]);
-    } catch (error) {
-      console.error('Lỗi khi gửi sản phẩm:', error);
-      alert('Đã xảy ra lỗi khi gửi dữ liệu!');
-    }
+  const handleConfirmSend = () => {
+    localStorage.setItem('productList', JSON.stringify(productList));
+    // Chuyển hướng đến trang billproduct và truyền dữ liệu sản phẩm
+    router.push('/im_package/Supplier');
+    setProductList([]);
   };
+
+//   const handleConfirmSend = async () => {
+//     // Lưu danh sách sản phẩm vào localStorage
+//     localStorage.setItem('productList', JSON.stringify(productList));
+//     console.log('Dữ liệu đã được lưu:', productList);
+  
+//     if (productList) {
+//       // Tạo mảng products mới, bỏ qua trường không cần thiết
+//       const products = productList.map(product => {
+//         return {
+//           ma: product.ma,
+//           ten: product.ten,
+//           description: product.moTa || "",
+//           soLuong: Number(product.soLuong) || 0,
+//           giaNhap: Number(product.giaNhap) || 0,
+//         };
+//       });
+  
+//       // Kiểm tra dữ liệu trước khi gửi
+//       console.log('Dữ liệu gửi đi:', products);
+  
+//       try {
+//         // Duyệt qua từng sản phẩm và gửi riêng từng sản phẩm
+//         for (const product of products) {
+//           const response = await fetch('http://localhost:3000/hanghoa/create-hang-hoa', {
+//             method: 'POST',
+//             headers: {
+//               'Content-Type': 'application/json',
+//             },
+//             body: JSON.stringify(product), // Gửi từng sản phẩm một
+//           });
+  
+//           // Nếu phản hồi không thành công, ném lỗi để dừng việc gửi tiếp
+//           if (!response.ok) {
+//             throw new Error(`HTTP error! status: ${response.status}`);
+//           }
+  
+//           // Lấy dữ liệu phản hồi từ API sau khi gửi thành công
+//           const data = await response.json();
+//           console.log('Dữ liệu đã được gửi thành công:', data);
+//         }
+        
+//         // Điều hướng đến trang khác sau khi gửi thành công
+//         router.push('/im_package/Supplier');
+//         setProductList([]); // Xóa danh sách sản phẩm sau khi gửi
+//       } catch (error) {
+//         // Xử lý lỗi khi gửi dữ liệu vào cơ sở dữ liệu
+//         console.error('Lỗi khi gửi dữ liệu vào cơ sở dữ liệu:', error);
+//       }
+//     }
+// };
+
 
   return (
     <div className="flex flex-col space-y-4 mt-8">
@@ -169,8 +177,8 @@ export default function AddProductForm() {
                 <label className="block text-sm font-medium">Mã hàng</label>
                 <input
                   type="text"
-                  name="maHang"
-                  value={product.maHang}
+                  name="ma"
+                  value={product.ma}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                   required
@@ -180,8 +188,8 @@ export default function AddProductForm() {
                 <label className="block text-sm font-medium">Tên hàng</label>
                 <input
                   type="text"
-                  name="tenHang"
-                  value={product.tenHang}
+                  name="ten"
+                  value={product.ten}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                   required
@@ -190,8 +198,8 @@ export default function AddProductForm() {
               <div className="col-span-2">
                 <label className="block text-sm font-medium">Mô tả</label>
                 <textarea
-                  name="moTa"
-                  value={product.moTa}
+                  name="description"
+                  value={product.description}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                 />
@@ -211,62 +219,12 @@ export default function AddProductForm() {
                 <label className="block text-sm font-medium">Giá</label>
                 <input
                   type="number"
-                  name="gia"
-                  value={product.gia}
+                  name="giaNhap"
+                  value={product.giaNhap}
                   onChange={handleInputChange}
                   className="border border-gray-300 p-2 rounded w-full"
                   required
                 />
-              </div>
-             
-              <div className="col-span-2">
-                <h3 className="text-lg font-semibold mb-2 text-blue-500">Nhà cung cấp</h3>
-                <div className="grid grid-cols-2 gap-4">
-                  <div>
-                    <label className="block text-sm font-medium">Mã nhà cung cấp</label>
-                    <input
-                      type="text"
-                      name="maNCC"
-                      value={product.nhaCungCap.maNCC}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Tên nhà cung cấp</label>
-                    <input
-                      type="text"
-                      name="tenNCC"
-                      value={product.nhaCungCap.tenNCC}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Địa chỉ cung cấp</label>
-                    <input
-                      type="text"
-                      name="diaChi"
-                      value={product.nhaCungCap.diaChi}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                  <div>
-                    <label className="block text-sm font-medium">Số điện thoại</label>
-                    <input
-                      type="text"
-                      name="soDienThoai"
-                      value={product.nhaCungCap.soDienThoai}
-                      onChange={handleInputChange}
-                      className="border border-gray-300 p-2 rounded w-full"
-                      required
-                    />
-                  </div>
-                </div>
               </div>
             </div>
             <div className="mt-4 flex justify-between items-center">
@@ -303,7 +261,7 @@ export default function AddProductForm() {
           <button
             className="ml-auto text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg mr-4"
             onClick={() => setConfirmationOpen(true)}>
-            Gửi đơn hàng tới đại lý
+            Gửi đơn hàng tới nhà cung cấp
           </button>
           </div>
           <div className="mt-4 overflow-x-auto">
@@ -316,25 +274,22 @@ export default function AddProductForm() {
         <th className="px-4 py-2 border-b">Mô tả</th>
         <th className="px-4 py-2 border-b">Số lượng</th>
         <th className="px-4 py-2 border-b">Giá</th>
-        <th className="px-4 py-2 border-b">Nhà cung cấp</th>
+        {/* <th className="px-4 py-2 border-b">Nhà cung cấp</th> */}
         <th className="px-4 py-2 border-b">Tổng số tiền</th>
         <th className="px-4 py-2 border-b">Chức năng</th>
       </tr>
     </thead>
     <tbody>
       {filteredProducts.map((item, index) => {
-        const totalAmount = item.soLuong * item.gia; // Tính tổng số tiền
+        const totalAmount = item.soLuong * item.giaNhap; // Tính tổng số tiền
         return (
           <tr key={index} className="text-center">
             <td className="px-4 py-2 border-b">{item.ngayNhapHang}</td>
-            <td className="px-4 py-2 border-b">{item.maHang}</td>
-            <td className="px-4 py-2 border-b">{item.tenHang}</td>
-            <td className="px-4 py-2 border-b">{item.moTa}</td>
+            <td className="px-4 py-2 border-b">{item.ma}</td>
+            <td className="px-4 py-2 border-b">{item.ten}</td>
+            <td className="px-4 py-2 border-b">{item.description}</td>
             <td className="px-4 py-2 border-b">{item.soLuong}</td>
-            <td className="px-4 py-2 border-b">{item.gia}</td>
-            <td className="px-4 py-2 border-b">
-              {item.nhaCungCap.maNCC} - {item.nhaCungCap.tenNCC} - {item.nhaCungCap.diaChi} - {item.nhaCungCap.soDienThoai}
-            </td>
+            <td className="px-4 py-2 border-b">{item.giaNhap}</td>
             <td className="px-4 py-2 border-b">{totalAmount}</td>
             <td className="px-4 py-2 border-b">
               <div className="flex justify-center space-x-2">
