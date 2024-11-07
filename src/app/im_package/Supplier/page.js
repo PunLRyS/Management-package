@@ -284,7 +284,7 @@ export default function Supplier() {
           Quay lại trang thêm hàng cần nhập
         </button>
       </Link>
-      <Link href="/im_package/BillExport">
+      <Link href="/im_package/BillProduct">
           <button className="style-button ">
             Xem hóa đơn nhập hàng tại đây
           </button>

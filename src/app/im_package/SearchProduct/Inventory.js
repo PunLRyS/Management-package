@@ -24,28 +24,36 @@ export default function Inventory() {
 
   fetchProducts(); // Gọi hàm fetchData
 }, []);
+
+
+
+  /////////////////////////////////////////////////
   // Tính tổng giá trị hàng hóa
   const totalValue = backendProducts.reduce((total, item) => {
     const itemTotal = item.soLuong * item.giaNhap; // Tính tổng giá cho từng sản phẩm
     return total + (isNaN(itemTotal) ? 0 : itemTotal); // Kiểm tra nếu itemTotal là NaN
   }, 0);
 
+
+
   if (loading) return <p>Đang tải dữ liệu...</p>;
   if (error) return <p>Lỗi: {error.message}</p>;
 
+
+
   return (
-    <div className="container mx-auto mt-8">
+    <div className="container mx-auto mt-8 ">
       <h1 className="text-2xl font-bold text-center text-blue-800">Danh sách hàng hóa</h1>
       <div className="overflow-x-auto mt-4">
         <table className="bg-white border border-blue-400 w-full">
           <thead>
             <tr className="bg-blue-200">
-              <th className="border border-blue-400 p-2 text-blue-800">Số thứ tự</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Mã hàng</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Tên hàng</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Số lượng</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Giá</th>
-              <th className="border border-blue-400 p-2 text-blue-800">Tổng giá</th>
+              <th className="name-data">Số thứ tự</th>
+              <th className="name-data">Mã hàng</th>
+              <th className="name-data">Tên hàng</th>
+              <th className="name-data">Số lượng</th>
+              <th className="name-data">Giá</th>
+              <th className="name-data">Tổng giá</th>
             </tr>
           </thead>
           <tbody>
@@ -53,12 +61,12 @@ export default function Inventory() {
               const totalAmount = item.soLuong * item.giaNhap; // Tính tổng giá cho từng sản phẩm
               return (
                 <tr key={item.id} className="hover:bg-blue-100">
-                  <td className="border border-blue-400 p-2 text-center">{index + 1}</td>
-                  <td className="border border-blue-400 p-2">{item.ma}</td>
-                  <td className="border border-blue-400 p-2">{item.ten}</td>
-                  <td className="border border-blue-400 p-2 text-center">{item.soLuong}</td>
-                  <td className="border border-blue-400 p-2 text-right">{item.giaNhap.toLocaleString()} VNĐ</td>
-                  <td className="border border-blue-400 p-2 text-right">{totalAmount.toLocaleString()} VNĐ</td>
+                  <td className="data-inventory">{index + 1}</td>
+                  <td className="data-inventory">{item.ma}</td>
+                  <td className="data-inventory">{item.ten}</td>
+                  <td className="data-inventory">{item.soLuong}</td>
+                  <td className="data-inventory">{item.giaNhap.toLocaleString()} VNĐ</td>
+                  <td className="data-inventory">{totalAmount.toLocaleString()} VNĐ</td>
                 </tr>
               );
             })}
