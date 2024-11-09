@@ -166,6 +166,7 @@ export default function Supplier() {
       diaChi: "",
       soDienThoai: "",
     });
+    window.location.reload();
   } catch (error) {
     console.error('Lỗi khi thêm đại lý:', error);
     alert('Đã xảy ra lỗi khi thêm đại lý!');
@@ -211,6 +212,7 @@ export default function Supplier() {
         )
       );
       setShowEditForm(false);
+      window.location.reload();
     } catch (error) {
       console.error('Error editing dealer:', error);
       alert('An error occurred while editing the dealer!');

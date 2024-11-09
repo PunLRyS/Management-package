@@ -22,7 +22,6 @@ export default function BillProduct() {
   }, []);
 
 
-
   // Tính tổng số tiền cần thanh toán
   const totalPayment = productList.reduce((total, item) => {
     return total + item.soLuong * item.giaNhap;

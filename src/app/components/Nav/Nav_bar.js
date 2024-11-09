@@ -13,7 +13,7 @@ export default function Nav_bar() {
 
         <div className="flex space-x-4">
           <div className="relative">
-          <Link href="/ex_package/ListDLC">
+          <Link href="/ex_package/Summary">
             <button
               className="hover:border-b-2 border-white px-2 py-2 font-semibold"
             >

@@ -9,12 +9,12 @@ export default function InventoryTable() {
   const [isOpen, setIsOpen] = useState(false); // Trạng thái của popup xuất hàng
   const [selectedItem, setSelectedItem] = useState(null); // Mặt hàng được chọn để xuất
   const [quantity, setQuantity] = useState(''); // Số lượng hàng xuất
-  const [price, setPrice] = useState(''); // Giá hàng xuất
   const [searchTerm, setSearchTerm] = useState(''); // Từ khóa tìm kiếm
   const [exportedItems, setExportedItems] = useState([]); // Danh sách hàng đã xuất
   const [isEditing, setIsEditing] = useState(false); // Trạng thái chỉnh sửa
   const [confirmationOpen, setConfirmationOpen] = useState(false);
   const [posts, setPosts] = useState([]); // Dữ liệu gốc từ API
+  const [receiptCode, setReceiptCode] = useState('');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -31,7 +31,6 @@ export default function InventoryTable() {
   const handleClose = () => {
     setIsOpen(false); // Đóng popup
     setQuantity(''); // Đặt lại giá trị số lượng
-    setPrice(''); // Đặt lại giá trị giá
     setSelectedItem(null); // Xóa mặt hàng đã chọn
   };
 
@@ -40,10 +39,9 @@ export default function InventoryTable() {
     e.preventDefault(); // Ngăn chặn hành vi mặc định của form
   
     const exportedQuantity = parseInt(quantity); // Chuyển đổi số lượng xuất sang số nguyên
-    const exportedPrice = parseFloat(price); // Chuyển đổi giá xuất sang số thực
   
-    if (isNaN(exportedQuantity) || isNaN(exportedPrice) || exportedQuantity <= 0 || exportedPrice <= 0) {
-      alert('Số lượng và giá phải là số dương.');
+    if (isNaN(exportedQuantity)|| exportedQuantity <= 0) {
+      alert('Số lượng phải là số dương.');
       return;
     }
 
@@ -55,13 +53,14 @@ export default function InventoryTable() {
   }
 }
 
+const currentPost = posts.find(post => post.id === selectedItem.id);
 
     const updatedItem = {
       id: selectedItem.id,
       ma: selectedItem.ma,
       ten: selectedItem.ten,
       soLuong: exportedQuantity,
-      giaNhap: exportedPrice,
+      giaNhap: currentPost.giaNhap,
     };
   
     if (isEditing) {
@@ -104,7 +103,6 @@ export default function InventoryTable() {
   const handleEdit = (item) => {
     setSelectedItem(item); // Lưu mặt hàng được chọn
     setQuantity(item.soLuong); // Đặt số lượng hiện có vào input
-    setPrice(item.gia); // Đặt giá hiện có vào input
     setIsOpen(true); // Mở popup
     setIsEditing(true); // Kích hoạt chế độ chỉnh sửa
   };
@@ -130,9 +128,51 @@ export default function InventoryTable() {
 
   const handleConfirmSend = async () => {
     try {
-      // Lưu danh sách mặt hàng đã xuất vào localStorage
-      localStorage.setItem('exportedItems', JSON.stringify(exportedItems));
+       // Hàm tạo mã ngẫu nhiên
+    function generateRandomCode(length) {
+      const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+      let result = '';
+      for (let i = 0; i < length; i++) {
+        result += characters.charAt(Math.floor(Math.random() * characters.length));
+      }
+      return result;
+    }
+
+    // Tạo mã phiếu xuất ngẫu nhiên
+    const receiptCode = generateRandomCode(4);
+
+      const receiptData = {
+        ma: receiptCode, // Đổi tên trường thành maPhieuXuat
+        danhSachHangHoa: exportedItems.map(item => ({
+          maHangHoa: item.ma, // Đổi tên trường thành maHangHoa
+          soLuong: item.soLuong // Giữ nguyên trường soLuong
+        })),
+      };
+
+      console.log('Dữ liệu phiếu xuất sẽ được gửi:', JSON.stringify(receiptData));
+
+      if (!Array.isArray(exportedItems)) {
+        throw new Error('exportedItems is not an array');
+      }
+
+      const response = await fetch('http://localhost:3000/phieu-xuat/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(receiptData), // Gửi dữ liệu phiếu xuất
+      });
   
+      if (!response.ok) {
+        throw new Error('Không thể tạo phiếu xuất!');
+      }
+
+      // Lưu danh sách hàng đã xuất vào localStorage
+    localStorage.setItem('exportedItems', JSON.stringify(exportedItems));
+    localStorage.setItem('receiptCode', receiptCode);
+
+
+
       const updatedPosts = posts.map(post => {
         const exportedItem = exportedItems.find(item => item.id === post.id);
         // if (exportedItem) {
@@ -143,7 +183,7 @@ export default function InventoryTable() {
   
       // Gửi yêu cầu PUT cho từng mặt hàng
       for (const item of updatedPosts) {
-        const updateResponse = await fetch(`http://localhost:3000/hanghoa/update/${item.id}`, {
+        const updateResponse = await fetch(`http://localhost:3000/hanghoa/update/${item.ma}`, {
           method: 'PUT', // Sử dụng PUT để cập nhật
           headers: {
             'Content-Type': 'application/json',
@@ -152,12 +192,12 @@ export default function InventoryTable() {
         });
   
         if (!updateResponse.ok) {
-          throw new Error(`Không thể cập nhật số lượng hàng hóa với ID ${item.id}!`);
+          throw new Error(`Không thể cập nhật số lượng hàng hóa với ID ${item.ma}!`);
         }
       }
   
-      // Nếu mọi thứ đều ổn, điều hướng tới trang BillExport
-      router.push('/ex_package/BillExport');
+      // Nếu mọi thứ đều ổn, điều hướng tới trang ListDLC
+      router.push('/ex_package/ListDLC');
     } catch (error) {
       console.error('Lỗi khi gửi dữ liệu:', error);
       alert('Đã xảy ra lỗi khi gửi dữ liệu!');
@@ -183,30 +223,41 @@ export default function InventoryTable() {
     fetchHangHoa();
   }, []);
 
+  const handleGoToDealerPage = () => {
+    if (exportedItems.length === 0) {
+      alert('Vui lòng chọn hàng xuất trước khi đi tới trang đại lý!');
+      return;
+    }
+    setConfirmationOpen(true); // Mở popup xác nhận
+  };
+
   return (
-    <div>
-      <div className="flex gap-x-4 my-4 justify-center">
-      <Link href="/ex_package/ListDLC">
+    <div> 
+      
+      <h1 className="text-2xl text-blue-500 font-bold my-4 text-center">Danh sách hàng hóa</h1>
+
+      <div className="flex gap-x-4 my-4 items-center justify-center w-[95%] mx-auto">
+      {/* <Link href="/ex_package/ListDLC">
       <button className="style-button">
         Quay lại trang đại lý 
       </button>
-      </Link>
-      <Link href="/ex_package/BillExport">
-      <button className="style-button">
-        Xem hóa đơn xuất hàng tại đây
-      </button>
-      </Link>
-      </div>
-      <h1 className="text-xl text-blue-500 font-bold my-4 text-center">Danh sách hàng hóa</h1>
-
-      {/* Input tìm kiếm */}
+      </Link> */}
       <input
         type="text"
         placeholder="Tìm kiếm theo mã hàng hoặc tên hàng"
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)} // Cập nhật từ khóa tìm kiếm
-        className="border border-gray-300 p-2 mb-4 w-full"
+        className="border border-gray-300 p-2 w-[80%] rounded-lg"
       />
+      <Link href="/ex_package/BillExport">
+      <button className="style-button">
+        Xem hóa đơn xuất hàng
+      </button>
+      </Link>
+      </div>
+     
+      {/* Input tìm kiếm */}
+      
 
       {/* Bảng danh sách hàng hóa */}
       <table className="min-w-full border-collapse border border-gray-200">
@@ -244,11 +295,11 @@ export default function InventoryTable() {
 
       {/* Bảng danh sách hàng đã xuất */}
       <div className="flex items-center w-[92%] mx-auto">
-      <h2 className="text-xl font-bold my-4 text-blue-500">Danh sách hàng đã xuất</h2>
+      <h2 className="text-xl font-bold my-4 text-blue-500">Danh sách hàng được xuất</h2>
       <button
             className="ml-auto text-white bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg mr-4"
-            onClick={() => setConfirmationOpen(true)}>
-            Ra bill xuất hàng
+            onClick={handleGoToDealerPage}>
+            Đi tới trang đại lý
           </button>
         </div>
       <table className="min-w-full border-collapse border border-gray-200">
@@ -273,7 +324,7 @@ export default function InventoryTable() {
               <td className="border border-gray-200 p-2 text-center">{item.ma}</td>
               <td className="border border-gray-200 p-2 text-center">{item.ten}</td>
               <td className="border border-gray-200 p-2 text-center">{item.soLuong}</td>
-              <td className="border border-gray-200 p-2 text-center">{item.giaNhap.toLocaleString()} VNĐ</td>
+              <td className="border border-gray-200 p-2 text-center">{item.giaNhap} VNĐ</td>
               <td className="border border-gray-200 p-2 text-center">{totalAmount.toLocaleString()} VNĐ</td>
               <td className="border border-gray-200 p-2 text-center">
                 <button
@@ -312,7 +363,7 @@ export default function InventoryTable() {
                   required
                 />
               </div>
-              <div className="mb-4">
+              {/* <div className="mb-4">
                 <label className="block mb-1">Giá:</label>
                 <input
                   type="number"
@@ -321,7 +372,7 @@ export default function InventoryTable() {
                   className="border border-gray-300 p-2 w-full"
                   required
                 />
-              </div>
+              </div> */}
               <div className="flex justify-between">
                 <button type="submit" className="style-button">
                   Xác nhận

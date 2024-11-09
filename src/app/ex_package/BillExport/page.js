@@ -1,103 +1,62 @@
-'use client'; // Với App Router trong Next.js 13+, cần 'use client' nếu dùng useEffect
-
-import Nav_bar from '@/app/components/Nav/Nav_bar';
+'use client';
 import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
 import Link from 'next/link';
+import Nav_bar from '@/app/components/Nav/Nav_bar';
 
-export default function BillExport() {
-  const [exportedItems, setExportedItems] = useState([]);
-  const [selectedDealers, setSelectedDealers] = useState([]);
+export default function CombinedBillDealerData() {
+  const [combinedData, setCombinedData] = useState([]);
 
   useEffect(() => {
-    // Lấy dữ liệu từ localStorage của các đại lý
-    const dealersData = localStorage.getItem('selectedDealersData');
-    if (dealersData) {
-      setSelectedDealers(JSON.parse(dealersData));
-    }
+    const fetchData = async () => {
+      try {
+        const [goodsResponse, dealersResponse] = await Promise.all([
+          fetch('http://localhost:3000/phieu-xuat-hang-hoa/get-du-lieu'),
+          fetch('http://localhost:3000/phieu-xuat-dai-ly/get-du-lieu'),
+        ]);
+
+        if (!goodsResponse.ok || !dealersResponse.ok) {
+          throw new Error('Không thể lấy dữ liệu từ một trong các API');
+        }
+
+        const goodsData = await goodsResponse.json();
+        const dealersData = await dealersResponse.json();
+
+        console.log("Dữ liệu từ API phieu-xuat-hang-hoa/get-du-lieu:", goodsData);
+
+        const enrichedGoodsData = await Promise.all(
+          goodsData.map(async (goodsItem) => {
+            const goodsDetailResponse = await fetch(`http://localhost:3000/hanghoa/find/${goodsItem.maHangHoa}`);
+            const goodsDetailData = goodsDetailResponse.ok ? await goodsDetailResponse.json() : {};
+            return { 
+              ...goodsItem, 
+              tenHangHoa: goodsDetailData.ten || 'Tên không có sẵn',
+              giaNhap: goodsDetailData.giaNhap || 0,
+            };
+          })
+        );
+
+        const enrichedDealersData = await Promise.all(
+          dealersData.map(async (dealerItem) => {
+            const dealerDetailResponse = await fetch(`http://localhost:3000/daily/get-by-ma/${dealerItem.maDaiLy}`);
+            const dealerDetailData = dealerDetailResponse.ok ? await dealerDetailResponse.json() : {};
+            return { ...dealerItem, ...dealerDetailData };
+          })
+        );
+
+        const combinedData = enrichedGoodsData.map((goodsItem) => {
+          const dealer = enrichedDealersData.find((dealerItem) => dealerItem.maPhieuXuat === goodsItem.maPhieuXuat) || {};
+          return { ...goodsItem, ...dealer };
+        });
+
+        setCombinedData(combinedData);
+      } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu:', error);
+      }
+    };
+
+    fetchData();
   }, []);
-
-  // Lấy dữ liệu từ localStorage khi trang được render
-  useEffect(() => {
-    const items = localStorage.getItem('exportedItems');
-    if (items) {
-      setExportedItems(JSON.parse(items));
-    }
-  }, []);
-
-  // const fetchExportRecords = async () => {
-  //   try {
-  //     const response = await fetch('http://localhost:3000/phieuxuat');
-  //     if (!response.ok) {
-  //       throw new Error(`HTTP error! status: ${response.status}`);
-  //     }
-  //     const data = await response.json();
-  //     setExportRecords(data); // Giả sử API trả về mảng phiếu xuất
-  //   } catch (error) {
-  //     console.error('Error fetching records:', error);
-  //   }
-  // };
-
-  // // Gọi API để lấy dữ liệu phiếu xuất khi component được render
-  // useEffect(() => {
-  //   fetchExportRecords();
-  // }, []);
-
-  // useEffect(() => {
-  //   const handleSubmit = async () => {
-  //     // Tạo đối tượng phiếu
-  //     const newRecord = {
-  //       ma: `PHIÊU_${exportRecords.length + 1}`, // Mã phiếu
-  //       totalAmount: exportedItems.reduce((total, item) => total + item.soLuong, 0), // Tổng số lượng từ danh sách hàng hóa
-  //       listPhieuXuatDaiLy: selectedDealers.map(dealer => ({
-  //         id: dealer.id, // giả sử mỗi dealer có id
-  //         maDaiLy: dealer.maDaiLy, // trường maDaiLy trong đại lý
-  //         ten: dealer.ten, // tên đại lý
-  //         phone: dealer.phone // điện thoại
-  //       })),
-  //       listPhieuXuatHangHoa: exportedItems.map(item => ({
-  //         id: item.id, // giả sử mỗi hàng hóa có id
-  //         ten: item.ten, // tên hàng hóa
-  //         maHangHoa: item.maHangHoa, // mã hàng hóa
-  //         soLuong: item.soLuong, // số lượng
-  //         giaNhap: item.giaNhap // giá nhập
-  //       }))
-  //     };
-
-  //     try {
-  //       const response = await fetch('http://localhost:3000/phieuxuat/create', {
-  //         method: 'POST',
-  //         headers: {
-  //           'Content-Type': 'application/json',
-  //           'Accept': '*/*'
-  //         },
-  //         body: JSON.stringify(newRecord)
-  //       });
-
-  //       if (!response.ok) {
-  //         throw new Error(`HTTP error! status: ${response.status}`);
-  //       }
-
-  //       // Lấy lại dữ liệu phiếu xuất mới
-  //       await fetchExportRecords(); // Giả sử hàm này đã được định nghĩa ở đâu đó
-  //       // Xóa dữ liệu đã xuất để chuẩn bị cho lần xuất tiếp theo
-  //       setSelectedDealers([]);
-  //       setExportedItems([]);
-  //       localStorage.removeItem('selectedDealersData');
-  //       localStorage.removeItem('exportedItems');
-  //     } catch (error) {
-  //       console.error('Error sai creating record:', error);
-  //     }
-  //   };
-
-  //   // Gọi hàm handleSubmit nếu có dữ liệu để lưu
-  //   if (exportedItems.length > 0 && selectedDealers.length > 0) {
-  //     handleSubmit();
-  //   }
-  // }, [exportedItems, selectedDealers, exportRecords]);
-
-  const totalPayment = exportedItems.reduce((total,item) => {
-    return total + item.soLuong * item.giaNhap;
-  }, 0);
 
   return (
     <>
@@ -107,89 +66,75 @@ export default function BillExport() {
       <div className="w-full flex justify-center">
         <div className="w-3/5 border-t-2 border-blue-700"></div>
       </div>
-    
       <div className="flex justify-center my-4">
-           <Link href="/ex_package/ListDLC">
-              <button className="style-button ">
-                Quay lại trang đại lý con
-              </button>
-            </Link>
-      </div>
-      <p className="font-bold text-blue-700 text-xl">Phiếu hàng đã xuất 1</p>
-      <div className="w-[95%] mx-auto">
-      <h1 className="text-xl font-bold text-blue-500 text-center">Danh sách đại lý đã chọn</h1>
-      {selectedDealers.length === 0 ? (
-        <div className="mt-8 text-center">
-        <p className="text-gray-500">Không có đại lý nào được chọn.</p>
+          <Link href="/ex_package/Summary">
+            <button className="style-button">
+              Quay lại trang hàng hóa
+            </button>
+          </Link>
         </div>
-      ) : (
-        <table className="min-w-full mt-4 border-collapse border border-gray-300">
-          <thead>
-            <tr className="bg-blue-200">
-              <th className="border border-gray-200 p-2">STT</th>
-              <th className="border border-gray-200 p-2">Tên đại lý</th>
-              <th className="border border-gray-200 p-2">Mã đại lý</th>
-              <th className="border border-gray-200 p-2">Địa chỉ</th>
-              <th className="border border-gray-200 p-2">SĐT</th>
-            </tr>
-          </thead>
-          <tbody>
-            {selectedDealers.map((item, index) => (
-              <tr key={item.number}>
-                <td className="border border-gray-200 p-2 text-center">{index + 1}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.ten}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.ma}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.diaChi}</td>
-                <td className="border border-gray-200 p-2 text-center">{item.phone}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      )}
 
-      {exportedItems.length === 0 ? (
-        <div className="mt-8 text-center">
-          <p className="text-gray-500">Không có sản phẩm nào được nhập.</p>
-        </div>
-      ) : (
-        <div className="mt-8 w-full overflow-x-auto">
-          <h2 className="text-xl font-bold text-blue-500 text-center">Danh sách sản phẩm</h2>
-          <table className="min-w-full mt-4 border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-blue-200">
-                <th className="border border-gray-300 p-2">Số thứ tự</th>
-                <th className="border border-gray-300 p-2">Mã hàng</th>
-                <th className="border border-gray-300 p-2">Tên hàng</th>
-                <th className="border border-gray-300 p-2">Số lượng</th>
-                <th className="border border-gray-300 p-2">Giá</th>
-                <th className="border border-gray-300 p-2">Tổng giá</th>
-              </tr>
-            </thead>
-            <tbody>
-              {exportedItems.map((item, index) => {
-                const totalAmount = item.soLuong * item.giaNhap;
-                return (
-                  <tr key={index} className="bg-gray-100">
-                    <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.ma}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.ten}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.soLuong}</td>
-                    <td className="border border-gray-300 p-2 text-right">{item.giaNhap}</td>
-                    <td className="border border-gray-300 p-2 text-right">{totalAmount}</td>
-                  </tr>
-                );
-              })}
-            </tbody>
-            <tfoot>
-              <tr>
-                <td colSpan="5" className="border border-gray-300 p-2 text-right font-bold">Tổng số tiền thanh toán:</td>
-                <td className="border border-gray-300 p-2 text-right">{totalPayment}</td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
-      )}
-    </div>
+      <div className="w-[95%] mx-auto">
+        {combinedData.length === 0 ? (
+          <div className="mt-8 text-center">
+            <p className="text-gray-500">Không có dữ liệu để hiển thị.</p>
+          </div>
+        ) : (
+          combinedData.map((item, index) => (
+            <div key={index} className="mt-8 w-full overflow-x-auto shadow-2xl rounded-lg border border-gray-200 p-10">
+              <motion.div
+                initial={{ opacity: 0, scale: 0.8 }}
+                whileInView={{ opacity: 1, scale: 1 }}
+                transition={{ duration: 0.5, ease: "easeOut" }}
+                viewport={{}}
+              >
+                <h2 className="text-xl font-bold text-blue-500 text-center">Phiếu xuất: {item.maPhieuXuat}</h2>
+                
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-blue-500">Thông tin Hàng hóa</h3>
+                  <table className="min-w-full mt-4 border-collapse border border-gray-300">
+  <thead>
+    <tr className="bg-blue-200">
+      <th className="border border-gray-300 p-2 font-semibold">Tên hàng hóa</th>
+      <th className="border border-gray-300 p-2 font-semibold">Số lượng</th>
+      <th className="border border-gray-300 p-2 font-semibold">Giá nhập</th>
+      <th className="border border-gray-300 p-2 font-semibold">Tổng giá</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr className="bg-gray-100">
+      <td className="border border-gray-300 p-2 text-center">{item.tenHangHoa || 'Tên không có sẵn'}</td>
+      <td className="border border-gray-300 p-2 text-center">{item.soLuong}</td>
+      <td className="border border-gray-300 p-2 text-center">{item.giaNhap}</td>
+      <td className="border border-gray-300 p-2 text-center">{item.soLuong * item.giaNhap}</td>
+    </tr>
+  </tbody>
+</table>
+                </div>
+                <div className="mt-4">
+                  <h3 className="text-lg font-semibold text-blue-500">Thông tin Đại lý</h3>
+                  <table className="min-w-full mt-2 border-collapse border border-gray-300">
+                    <tbody>
+                      <tr>
+                        <td className="border border-gray-300 p-2 font-semibold">Tên đại lý</td>
+                        <td className="border border-gray-300 p-2">{item.ten || 'Thông tin không có sẵn'}</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-gray-300 p-2 font-semibold">Địa chỉ</td>
+                        <td className="border border-gray-300 p-2">{item.diaChi || 'Thông tin không có sẵn'}</td>
+                      </tr>
+                      <tr>
+                        <td className="border border-gray-300 p-2 font-semibold">Số điện thoại</td>
+                        <td className="border border-gray-300 p-2">{item.phone || 'Thông tin không có sẵn'}</td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </motion.div>
+            </div>
+          ))
+        )}
+      </div>
     </div>
     </>
   );

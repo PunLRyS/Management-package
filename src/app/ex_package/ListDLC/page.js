@@ -11,9 +11,21 @@ export default function ListDLC() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [currentDealer, setCurrentDealer] = useState(null);
   const [backendDLC, setBackendDLC] = useState([]);
+  const router = useRouter();
 
+  const [exportedItems, setExportedItems] = useState([]);
+  const [receiptCode, setReceiptCode] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  function generateRandomCode(length) {
+    const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+    let result = '';
+    for (let i = 0; i < length; i++) {
+      result += characters.charAt(Math.floor(Math.random() * characters.length));
+    }
+    return result;
+  }
 
   const [newDealer, setNewDealer] = useState({
     ten: "",
@@ -23,7 +35,19 @@ export default function ListDLC() {
   });
   const [selectedDealers, setSelectedDealers] = useState([]);
 
-  const router = useRouter();
+ 
+
+  useEffect(() => {
+    // Lấy dữ liệu từ localStorage
+    const items = localStorage.getItem('exportedItems');
+    const code = localStorage.getItem('receiptCode');
+    if (items) {
+      setExportedItems(JSON.parse(items)); // Chuyển đổi từ JSON thành mảng
+    }
+    if (code) {
+      setReceiptCode(code); // Cập nhật receiptCode vào state
+    }
+  }, []);
 
   useEffect(() => {
     const fetchDLC = async () => {
@@ -59,11 +83,14 @@ export default function ListDLC() {
       ? Math.max(...backendDLC.map((item) => parseInt(item.number, 10)))
       : 0;
 
-    const newDealerData = {
-      number: (maxNumber + 1).toString(),
-      ...newDealer,
-      goods: [],
-    };
+      const newDealerData = {
+        number: (maxNumber + 1).toString(),
+        ten: newDealer.ten,
+        ma: generateRandomCode(8), // Gọi hàm sinh mã ngẫu nhiên (độ dài mã là 8 ký tự)
+        diaChi: newDealer.diaChi,
+        phone: newDealer.phone,
+        goods: [],
+      };
 
     try {
       // Gửi yêu cầu POST đến API để lưu đại lý mới
@@ -88,7 +115,6 @@ export default function ListDLC() {
     setShowAddForm(false);
     setNewDealer({
       ten: "",
-      ma: "",
       diaChi: "",
       phone: "",
     });
@@ -102,7 +128,6 @@ export default function ListDLC() {
     setCurrentDealer(dealer);
     setNewDealer({
       ten: dealer.ten,
-      ma: dealer.ma,
       diaChi: dealer.diaChi,
       phone: dealer.phone,
     });
@@ -166,31 +191,119 @@ export default function ListDLC() {
     // Nếu đã chọn đại lý này rồi thì bỏ chọn, nếu không thì chọn đại lý mới
     const newSelectedDealerId = selectedDealerId === id ? null : id;
     setSelectedDealerId(newSelectedDealerId);
-
-    // Lưu vào localStorage
-    if (newSelectedDealerId) {
-        const selectedDealersData = backendDLC.filter(item => item.id === newSelectedDealerId);
-        localStorage.setItem('selectedDealersData', JSON.stringify(selectedDealersData));
-    } else {
-        // Nếu không có đại lý nào được chọn thì xóa dữ liệu trong localStorage
-        localStorage.removeItem('selectedDealersData');
-    }
 };
-  
+
+
+
+  //////////////////////////////////////////////////////////////////////
+
+
+
   const handleExportGoods = () => {
     if (!selectedDealerId) {
       alert("Vui lòng chọn ít nhất một đại lý để xuất hàng.");
       return;
     }
-    // Chuyển hướng đến form xuất hàng ở đây
-    router.push("/ex_package/Summary");
-  };
+    // Lấy thông tin của đại lý được chọn
+    const selectedDealer = backendDLC.find(dealer => dealer.id === selectedDealerId);
+    console.log('selectedDealer', selectedDealer);
+    if (!selectedDealer) {
+      alert("Không tìm thấy thông tin đại lý.");
+      return;
+    }
+    const { ten, diaChi, phone } = selectedDealer;
 
+    // Tạo mã dùng ngẫu nhiên
+    const ma = generateRandomCode(8);
+    console.log('ma', ma);
+
+    // Lấy mã phiếu xuất từ receiptCode
+    const maPhieuXuat = receiptCode;
+    console.log('maPhieuXuat', maPhieuXuat);
+
+    // Tạo dữ liệu để post API
+    const data = {
+      ma,
+      ten,
+      diaChi,
+      phone,
+      danhSachPhieuXuat: [
+        {
+          maPhieuXuat
+        }
+      ]
+    };
+    console.log('data', data);
+
+    // Gửi yêu cầu post API
+    fetch("http://localhost:3000/daily/add-dai-ly/-phieu-xuat", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(data),
+    })
+    .then(response => {
+      console.log("API response status:", response.status);
+      if (!response.ok) {
+        throw new Error("Network response was not ok");
+      }
+      return response.json();
+    })
+    .then(data => {
+      console.log('API response', data);
+          router.push("/ex_package/BillExport");
+  })
+  .catch(error => {
+      console.error("Error:", error.message);
+      alert("Lỗi hệ thống: " + error.message);
+  });
+
+    // Chuyển hướng đến form xuất hàng
+    
+  };
   return (
     <>
-    <Nav_bar />
+    <Nav_bar /> 
     <div className="pt-20">
-      <h className="flex justify-center text-2xl text-blue-700 py-4 font-bold">Quản lý xuất hàng</h>
+      <h1 className="text-2xl text-blue-500 font-bold my-4 text-center">Danh sách hàng xuất</h1>
+      {exportedItems.length === 0 ? (
+        <p className="text-center">Không có hàng nào được xuất.</p>
+      ) : (
+        
+        <table className="min-w-full border-collapse border border-gray-200 mx-auto">
+          <thead>
+            <tr>
+              <th className="name-data-inventory">STT</th>
+              <th className="name-data-inventory">Mã phiếu xuất</th>
+              <th className="name-data-inventory">Mã hàng</th>
+              <th className="name-data-inventory">Tên hàng</th>
+              <th className="name-data-inventory">Số lượng</th>
+              <th className="name-data-inventory">Giá</th>
+              <th className="name-data-inventory">Tổng giá</th>
+            </tr>
+          </thead>
+          <tbody>
+            {exportedItems.map((item, index) => {
+              const totalAmount = item.soLuong * item.giaNhap;
+              return (
+                <tr key={index}>
+                  <td className="data-inventory">{index + 1}</td>
+                  <td className="data-inventory">{receiptCode}</td>
+                  <td className="data-inventory">{item.ma}</td>
+                  <td className="data-inventory">{item.ten}</td>
+                  <td className="data-inventory">{item.soLuong}</td>
+                  <td className="data-inventory">{item.giaNhap.toLocaleString()} VNĐ</td>
+                  <td className="data-inventory">{totalAmount.toLocaleString()} VNĐ</td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      )}
+    </div>
+    <div className="pt-10">
+      <h className="flex justify-center text-2xl text-blue-700 py-4 font-bold">Quản lý các đại lý con</h>
       <div className="mb-4">
         <input
           type="text"
@@ -221,6 +334,8 @@ export default function ListDLC() {
         </Link>
       </div>
 
+     
+
       {showAddForm && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
@@ -238,18 +353,6 @@ export default function ListDLC() {
                 value={newDealer.ten}
                 onChange={(e) =>
                   setNewDealer({ ...newDealer, ten: e.target.value })
-                }
-                className="box-input-export"
-                required
-              />
-            </div>
-            <div>
-              <label className="title-input">Mã đại lý:</label>
-              <input
-                type="text"
-                value={newDealer.ma}
-                onChange={(e) =>
-                  setNewDealer({ ...newDealer, ma: e.target.value })
                 }
                 className="box-input-export"
                 required
@@ -311,18 +414,6 @@ export default function ListDLC() {
               />
             </div>
             <div>
-              <label className="block mb-1">Mã đại lý:</label>
-              <input
-                type="text"
-                value={newDealer.ma}
-                onChange={(e) =>
-                  setNewDealer({ ...newDealer, ma: e.target.value })
-                }
-                className="box-input-export"
-                required
-              />
-            </div>
-            <div>
               <label className="block mb-1">Địa chỉ:</label>
               <input
                 type="text"
@@ -361,7 +452,6 @@ export default function ListDLC() {
             <th className="name-data-inventory">Chọn</th>
             <th className="name-data-inventory">STT</th>
             <th className="name-data-inventory">Tên đại lý</th>
-            <th className="name-data-inventory">Mã đại lý</th>
             <th className="name-data-inventory">Địa chỉ</th>
             <th className="name-data-inventory">SĐT</th>
             <th className="name-data-inventory">Hành động</th>
@@ -370,7 +460,7 @@ export default function ListDLC() {
         <tbody>
           {filteredPosts.map((item, index) => (
             <tr key={item.number}>
-              <td className="name-data-inventory">
+              <td className="name-data-inventory text-center">
                 <input
                   type="checkbox"
                   checked={selectedDealerId === item.id}
@@ -379,7 +469,6 @@ export default function ListDLC() {
               </td>
               <td className="data-inventory">{index + 1}</td>
               <td className="data-inventory">{item.ten}</td>
-              <td className="data-inventory">{item.ma}</td>
               <td className="data-inventory">{item.diaChi}</td>
               <td className="data-inventory">{item.phone}</td>
               <td className="data-inventory">
