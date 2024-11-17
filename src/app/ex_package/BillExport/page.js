@@ -31,7 +31,6 @@ export default function CombinedBillDealerData() {
             return { 
               ...goodsItem, 
               tenHangHoa: goodsDetailData.ten || 'Tên không có sẵn',
-              giaNhap: goodsDetailData.giaNhap || 0,
             };
           })
         );
@@ -93,23 +92,23 @@ export default function CombinedBillDealerData() {
                 <div className="mt-4">
                   <h3 className="text-lg font-semibold text-blue-500">Thông tin Hàng hóa</h3>
                   <table className="min-w-full mt-4 border-collapse border border-gray-300">
-  <thead>
-    <tr className="bg-blue-200">
-      <th className="border border-gray-300 p-2 font-semibold">Tên hàng hóa</th>
-      <th className="border border-gray-300 p-2 font-semibold">Số lượng</th>
-      <th className="border border-gray-300 p-2 font-semibold">Giá nhập</th>
-      <th className="border border-gray-300 p-2 font-semibold">Tổng giá</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr className="bg-gray-100">
-      <td className="border border-gray-300 p-2 text-center">{item.tenHangHoa || 'Tên không có sẵn'}</td>
-      <td className="border border-gray-300 p-2 text-center">{item.soLuong}</td>
-      <td className="border border-gray-300 p-2 text-center">{item.giaNhap}</td>
-      <td className="border border-gray-300 p-2 text-center">{item.soLuong * item.giaNhap}</td>
-    </tr>
-  </tbody>
-</table>
+                    <thead>
+                      <tr className="bg-blue-200">
+                        <th className="border border-gray-300 p-2 font-semibold">Tên hàng hóa</th>
+                        <th className="border border-gray-300 p-2 font-semibold">Số lượng</th>
+                        <th className="border border-gray-300 p-2 font-semibold">Giá nhập</th>
+                        <th className="border border-gray-300 p-2 font-semibold">Tổng giá</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      <tr className="bg-gray-100">
+                        <td className="border border-gray-300 p-2 text-center">{item.tenHangHoa || 'Tên không có sẵn'}</td>
+                        <td className="border border-gray-300 p-2 text-center">{item.soLuong}</td>
+                        <td className="border border-gray-300 p-2 text-center">{item.giaNhap}</td>
+                        <td className="border border-gray-300 p-2 text-center">{item.soLuong * item.giaNhap}</td>
+                      </tr>
+                    </tbody>
+                  </table>
                 </div>
                 <div className="mt-4">
                   <h3 className="text-lg font-semibold text-blue-500">Thông tin Đại lý</h3>
@@ -130,6 +129,7 @@ export default function CombinedBillDealerData() {
                     </tbody>
                   </table>
                 </div>
+                <p className="mt-4 text-blue-500 text-right font-semibold"> <span class="mr-2"><i class="fa fa-hourglass-half"></i></span> Đang chờ hoàn tất thanh toán ...</p>
               </motion.div>
             </div>
           ))

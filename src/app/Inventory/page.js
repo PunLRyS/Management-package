@@ -1,7 +1,9 @@
-"use client";
+"use client"
+import Link from 'next/link';
+import Nav_bar from '@/app/components/Nav/Nav_bar';
 import { useEffect, useState } from "react";
 
-export default function Inventory() {
+export default function InventoryPage() {
   const [backendProducts, setBackendProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -33,16 +35,17 @@ export default function Inventory() {
     const itemTotal = item.soLuong * item.giaNhap; // Tính tổng giá cho từng sản phẩm
     return total + (isNaN(itemTotal) ? 0 : itemTotal); // Kiểm tra nếu itemTotal là NaN
   }, 0);
-
-
-
+  
   if (loading) return <p>Đang tải dữ liệu...</p>;
   if (error) return <p>Lỗi: {error.message}</p>;
 
 
 
-  return (
-    <div className="container mx-auto mt-8 ">
+    return (
+      <>
+      <Nav_bar />
+      <div className="pt-16">
+      <div className="container mx-auto mt-8 ">
       <h1 className="text-2xl font-bold text-center text-blue-800">Danh sách hàng hóa</h1>
       <div className="overflow-x-auto mt-4">
         <table className="bg-white border border-blue-400 w-full">
@@ -80,5 +83,7 @@ export default function Inventory() {
         </table>
       </div>
     </div>
-  );
-}
+      </div>
+      </>
+    );
+  }

@@ -173,7 +173,7 @@ export default function ListDLC() {
       setBackendDLC((prevBackendDLC) => prevBackendDLC.filter((dealer) => dealer.id !== dealerId));
     } catch (error) {
       console.error('Error deleting dealer:', error);
-      alert('An error occurred while deleting the dealer');
+      alert('Giao dịch với đại lý này đang được xử lý, không thể xóa!');
     }
   }
 };

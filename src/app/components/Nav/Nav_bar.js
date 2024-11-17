@@ -1,5 +1,3 @@
-"use client";
-import { useState } from 'react';
 import Link from 'next/link';
 
 export default function Nav_bar() {
@@ -20,19 +18,6 @@ export default function Nav_bar() {
               Export
             </button>
             </Link>
-            {/* <button
-              onClick={() => setXuatDropdownOpen(!isXuatDropdownOpen)}
-              className="hover:border-b-2 border-white px-2 py-2 font-semibold"
-            >
-              Export
-            </button>
-            {isXuatDropdownOpen && (
-              <div className="absolute top-full mt-2 bg-blue-600 rounded shadow-lg z-10">
-                <Link href="/xuat-hang/bill" className="block px-4 py-2 hover:bg-blue-700">
-                  Bill Export
-                </Link>
-              </div>
-            )} */}
           </div>
 
           <div className="relative">
@@ -46,7 +31,7 @@ export default function Nav_bar() {
           </div>
 
           <div className="relative">
-            <Link href="/im_package/SearchProduct">
+            <Link href="/Inventory">
             <button className="hover:border-b-2 border-white px-2 py-2 font-semibold">
               Inventory
             </button>
