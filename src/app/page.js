@@ -5,6 +5,8 @@ import VideoComponent from "./components/VideoComponent";
 import Link from "next/link";
 import { useEffect, useState } from 'react';
 import  { motion } from 'framer-motion';
+import Image from 'next/image';
+import Background from '/public/Baixar-fundo-abstrato-hexágono_-conceito-poligonal-de-tecnologia-gratuitamente.png';
 
 // Import font Montserrat from Google Fonts
 const montserrat = Inter({ subsets: ['latin'] });
@@ -27,6 +29,20 @@ export default function Home() {
     <main className="h-screen overflow-auto"> {/* Set height for the parent element */}
       <VideoComponent />
       {showSecondComponent && (
+        <Image
+        alt="Mountains"
+        src={Background}
+        placeholder="blur"
+        quality={100}
+        fill
+        sizes="100vw"
+        style={{
+          objectFit: 'cover',
+        }}
+        className="blur-sm"
+      />
+      )}
+      {showSecondComponent && (
         <motion.div
         initial={{ y: "-100vw" }}
         animate={{ y: 0 }}
@@ -41,8 +57,8 @@ export default function Home() {
           className={`bg-white rounded-b-2xl w-[35%] ml-[10%] mt-[8%] h-[10%] font-bold text-center text-7xl p-4 mr-12 text-blue-800 ${montserrat.className}`}
         >
           <motion.div
-            initial={{ x: "-100vw" }}
-            animate={{ x: 0 }}
+            initial={{ x: "-100vw", opacity: 0 }}
+            animate={{ x: 0, opacity: 1 }}
             transition={{ type: "tween", duration: 1.5 }}
           >
           Management
@@ -63,20 +79,30 @@ export default function Home() {
       
       )}
       {showSecondComponent && (
-       <div className="bg-white rounded-b-2xl rounded-l-2xl w-[85%] mx-auto h-[60%] relative">
+       <div className="rounded-b-2xl rounded-l-2xl w-[85%] mx-auto h-[60%] relative">
         {/* <FontAwesomeIcon icon="fa-solid fa-box-open" size="xl" style={{color: "#2638c5",}} /> */}
         <div className="">
         {/* <p className="text-black text-lg my-4 mt-10 text-center">
                 This platform is designed to simplify stock control, optimize order
                 processing.
               </p> */}
-        <input
-        type="text"
-        placeholder="Tìm kiếm sản phẩm..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="border border-gray-500 p-2 rounded w-[60%] mx-auto flex mt-4 shadow-sm focus:outline-none focus:border-blue-500 focus:border-2"
-      /> <div className="flex justify-center items-center my-4">
+        <motion.div
+        initial={{ y: "-2vw", opacity: 0 }}
+        animate={{ y: 0, opacity: 1 }}
+        transition={{ type: "tween", duration: 2.5 }}
+        >
+          <div className="relative w-[60%] mx-auto mt-6">
+  <input
+    type="text"
+    placeholder="Tìm kiếm sản phẩm..."
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value)}
+    className="border border-gray-300 p-2 rounded w-full shadow-lg focus:outline-none focus:border-blue-500 focus:border-2 pl-10"
+  />
+  <i className="fa-solid fa-magnifying-glass absolute left-3 top-1/2 transform -translate-y-1/2 text-blue-700"></i>
+</div>
+        </motion.div>
+      <div className="flex justify-center items-center my-4">
         <motion.div
             initial={{ opacity: 0 }} // Bắt đầu mờ hoàn toàn
             animate={{ opacity: 1 }} // Hiện rõ
@@ -86,22 +112,22 @@ export default function Home() {
           </motion.div>
 
 </div>
-<p className="text-black text-lg text-center w-[50%] flex justify-center mx-auto">
+<p className="text-black text-sm text-center w-[50%] flex justify-center mx-auto ">
 Inventory management is a crucial process that involves overseeing the flow of goods within a business, from procurement to storage and distribution. It ensures that products are available when needed while preventing overstocking, which can lead to unnecessary costs. 
               </p>
 
       </div>
-      <motion.div
+      {/* <motion.div
         initial={{ y: "100vh", opacity: 0}}
         animate={{ y: 0, opacity: 1 }}
         transition={{ type: "tween", duration: 2 }}
-        >
+        > */}
        <Link href="/Inventory">
-         <button className="bg-white rounded-xl w-[20%] h-[10%] absolute bottom-4 left-1/2 transform -translate-x-1/2 flex items-center justify-center shadow-xl">
+         <button className="bg-white rounded-xl w-[20%] h-[10%] absolute mt-4 left-1/2 transform -translate-x-1/2 flex items-center justify-center shadow-xl">
            <p className="text-blue-800 font-semibold">View More</p>
          </button>
        </Link>
-        </motion.div>
+      {/* </motion.div> */}
      </div>
      
       )}

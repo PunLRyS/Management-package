@@ -10,6 +10,7 @@ module.exports = {
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",
+        bgNav:"#1F26C9",
       },
       animation: {
         "spin-fast": "spin 0.5s linear infinite",

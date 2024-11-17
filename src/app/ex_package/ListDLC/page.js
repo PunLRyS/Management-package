@@ -1,8 +1,11 @@
 "use client";
 import React, { useState,useEffect } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
 import Nav_bar from "@/app/components/Nav/Nav_bar";
 import Link from "next/link";
+import Image from 'next/image';
+import Background from '/public/Baixar-fundo-abstrato-hexágono_-conceito-poligonal-de-tecnologia-gratuitamente.png';
 
 export default function ListDLC() {
   const [searchTerm, setSearchTerm] = useState("");
@@ -17,6 +20,20 @@ export default function ListDLC() {
   const [receiptCode, setReceiptCode] = useState('');
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(true);
+
+  const tableAnimation = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 1 } },
+  };
+
+  const rowAnimation = {
+    hidden: { opacity: 0, x: -20 },
+    visible: (i) => ({
+      opacity: 1,
+      x: 0,
+      transition: { delay: i * 0.1, duration: 0.8 },
+    }),
+  };
 
   function generateRandomCode(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -265,45 +282,103 @@ export default function ListDLC() {
   return (
     <>
     <Nav_bar /> 
-    <div className="pt-20">
-      <h1 className="text-2xl text-blue-500 font-bold my-4 text-center">Danh sách hàng xuất</h1>
+    <Image
+      alt="Mountains"
+      src={Background}
+      placeholder="blur"
+      quality={100}
+      sizes="100vw"
+      style={{
+        objectFit: 'cover',
+        position: 'fixed',
+      }}
+      className="blur-sm absolute w-screen h-screen"
+    />
+     <div className="pt-20 relative">
+      <motion.h1
+        className="text-2xl text-blue-500 font-bold my-4 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        Danh sách hàng xuất
+      </motion.h1>
+
       {exportedItems.length === 0 ? (
-        <p className="text-center">Không có hàng nào được xuất.</p>
+        <motion.p
+          className="text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
+          Không có hàng nào được xuất.
+        </motion.p>
       ) : (
-        
-        <table className="min-w-full border-collapse border border-gray-200 mx-auto">
-          <thead>
-            <tr>
-              <th className="name-data-inventory">STT</th>
-              <th className="name-data-inventory">Mã phiếu xuất</th>
-              <th className="name-data-inventory">Mã hàng</th>
-              <th className="name-data-inventory">Tên hàng</th>
-              <th className="name-data-inventory">Số lượng</th>
-              <th className="name-data-inventory">Giá</th>
-              <th className="name-data-inventory">Tổng giá</th>
-            </tr>
-          </thead>
-          <tbody>
-            {exportedItems.map((item, index) => {
-              const totalAmount = item.soLuong * item.giaNhap;
-              return (
-                <tr key={index}>
-                  <td className="data-inventory">{index + 1}</td>
-                  <td className="data-inventory">{receiptCode}</td>
-                  <td className="data-inventory">{item.ma}</td>
-                  <td className="data-inventory">{item.ten}</td>
-                  <td className="data-inventory">{item.soLuong}</td>
-                  <td className="data-inventory">{item.giaNhap.toLocaleString()} VNĐ</td>
-                  <td className="data-inventory">{totalAmount.toLocaleString()} VNĐ</td>
-                </tr>
-              );
-            })}
-          </tbody>
-        </table>
+        <motion.div
+          className="overflow-x-auto"
+          initial="hidden"
+          animate="visible"
+          variants={tableAnimation}
+        >
+          <table className="min-w-full border-collapse border border-gray-200 mx-auto">
+            <thead>
+              <tr>
+                <th className="name-data-inventory">STT</th>
+                <th className="name-data-inventory">Mã phiếu xuất</th>
+                <th className="name-data-inventory">Mã hàng</th>
+                <th className="name-data-inventory">Tên hàng</th>
+                <th className="name-data-inventory">Số lượng</th>
+                <th className="name-data-inventory">Giá</th>
+                <th className="name-data-inventory">Tổng giá</th>
+              </tr>
+            </thead>
+            <tbody>
+              {exportedItems.map((item, index) => {
+                const totalAmount = item.soLuong * item.giaNhap;
+                return (
+                  <motion.tr
+                    key={index}
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={rowAnimation}
+                    className="hover:bg-blue-100"
+                  >
+                    <td className="data-inventory">{index + 1}</td>
+                    <td className="data-inventory">{receiptCode}</td>
+                    <td className="data-inventory">{item.ma}</td>
+                    <td className="data-inventory">{item.ten}</td>
+                    <td className="data-inventory">{item.soLuong}</td>
+                    <td className="data-inventory">
+                      {item.giaNhap.toLocaleString()} VNĐ
+                    </td>
+                    <td className="data-inventory">
+                      {totalAmount.toLocaleString()} VNĐ
+                    </td>
+                  </motion.tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </motion.div>
       )}
     </div>
-    <div className="pt-10">
-      <h className="flex justify-center text-2xl text-blue-700 py-4 font-bold">Quản lý các đại lý con</h>
+
+
+    <motion.div
+      className="pt-10 relative"
+      initial="hidden"
+      animate="visible"
+      variants={tableAnimation}
+    >
+      <motion.h1
+        className="flex justify-center text-2xl text-blue-700 py-4 font-bold"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        Quản lý các đại lý con
+      </motion.h1>
       <div className="mb-4">
         <input
           type="text"
@@ -315,28 +390,32 @@ export default function ListDLC() {
       </div>
 
       <div className="mb-4 flex justify-center items-center space-x-4">
-        <button
+        <motion.button
           onClick={() => setShowAddForm(true)}
           className="style-button w-[25%]"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           Thêm đại lý
-        </button>
-        <button
+        </motion.button>
+        <motion.button
           onClick={handleExportGoods}
           className="style-button w-[25%]"
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
         >
           Xuất hàng cho đại lý
-        </button>
-        <Link href="/ex_package/BillExport">
-          <button className="style-button ">
-            Xem hóa đơn xuất hàng tại đây
-          </button>
-        </Link>
+        </motion.button>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Link href="/ex_package/BillExport">
+            <button className="style-button">Xem hóa đơn xuất hàng tại đây</button>
+          </Link>
+        </motion.div>
       </div>
-
-     
-
-      {showAddForm && (
+{showAddForm && (
         <div
           className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
           onClick={handleOverlayClick}
@@ -446,7 +525,12 @@ export default function ListDLC() {
         </div>
       )}
 
-      <table className="min-w-full border-collapse border border-gray-200">
+      <motion.table
+        className="min-w-full border-collapse border border-gray-200"
+        initial="hidden"
+        animate="visible"
+        variants={tableAnimation}
+      >
         <thead>
           <tr>
             <th className="name-data-inventory">Chọn</th>
@@ -459,7 +543,14 @@ export default function ListDLC() {
         </thead>
         <tbody>
           {filteredPosts.map((item, index) => (
-            <tr key={item.number}>
+            <motion.tr
+              key={item.number}
+              custom={index}
+              initial="hidden"
+              animate="visible"
+              variants={rowAnimation}
+              className="hover:bg-blue-100"
+            >
               <td className="name-data-inventory text-center">
                 <input
                   type="checkbox"
@@ -473,25 +564,29 @@ export default function ListDLC() {
               <td className="data-inventory">{item.phone}</td>
               <td className="data-inventory">
                 <div className="flex justify-center space-x-2">
-                <button
-                  onClick={() => handleEditClick(item)}
-                  className="style-button"
-                >
-                  Sửa
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(item.id)}
-                  className="style-button"
-                >
-                  Xóa
-                </button>
+                  <motion.button
+                    onClick={() => handleEditClick(item)}
+                    className="style-button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Sửa
+                  </motion.button>
+                  <motion.button
+                    onClick={() => handleDeleteClick(item.id)}
+                    className="style-button"
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                  >
+                    Xóa
+                  </motion.button>
                 </div>
               </td>
-            </tr>
+            </motion.tr>
           ))}
         </tbody>
-      </table>
-    </div>
+      </motion.table>
+    </motion.div>
     </>
   );
 }

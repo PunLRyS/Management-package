@@ -3,6 +3,9 @@ import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import Nav_bar from "@/app/components/Nav/Nav_bar";
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Background from '/public/Baixar-fundo-abstrato-hexágono_-conceito-poligonal-de-tecnologia-gratuitamente.png';
 
 export default function Summary() {
   // Khởi tạo các state cần thiết
@@ -20,6 +23,17 @@ export default function Summary() {
   const [error, setError] = useState(null);
 
   const router = useRouter();
+
+  const pageVariants = {
+    hidden: { opacity: 0, y: 50 },
+    visible: { opacity: 1, y: 0 },
+  };
+  
+  const tableVariants = {
+    hidden: { opacity: 0, scale: 0.8 },
+    visible: { opacity: 1, scale: 1 },
+  };
+  
 
   // Hàm xử lý khi nhấn nút "Xuất hàng"
   const handleExportClick = (item) => {
@@ -238,16 +252,40 @@ const currentPost = posts.find(post => post.id === selectedItem.id);
   return (
     <>
       <Nav_bar />
-      <div className="flex flex-col space-y-4 mt-8 pt-16">
-      
-      <h1 className="text-2xl text-blue-500 font-bold my-4 text-center">Danh sách hàng hóa</h1>
+      <Image
+      alt="Mountains"
+      src={Background}
+      placeholder="blur"
+      quality={100}
+      sizes="100vw"
+      style={{
+        objectFit: 'cover',
+        position: 'fixed',
+      }}
+      className="blur-sm absolute w-screen h-screen"
+    />
 
-      <div className="flex gap-x-4 my-4 items-center justify-center w-[95%] mx-auto">
-      {/* <Link href="/ex_package/ListDLC">
-      <button className="style-button">
-        Quay lại trang đại lý 
-      </button>
-      </Link> */}
+    {/* Nội dung chính */}
+    <motion.div
+      initial="hidden"
+      animate="visible"
+      transition={{ duration: 0.8 }}
+      variants={pageVariants}
+      className="relative flex flex-col space-y-4 mt-8 pt-16 w-screen"
+    >
+      <motion.h1
+        className="text-4xl text-blue-500 font-bold my-4 text-center"
+        variants={pageVariants}
+        transition={{ delay: 0.6 }}
+      >
+        Danh sách hàng hóa
+      </motion.h1>
+
+      <motion.div
+        className="flex gap-x-4 my-4 items-center justify-center w-[95%] mx-auto"
+        variants={pageVariants}
+        transition={{ delay: 1.5 }}
+      >
       <input
         type="text"
         placeholder="Tìm kiếm theo mã hàng hoặc tên hàng"
@@ -260,13 +298,17 @@ const currentPost = posts.find(post => post.id === selectedItem.id);
         Xem hóa đơn xuất hàng
       </button>
       </Link>
-      </div>
+      </motion.div>
      
       {/* Input tìm kiếm */}
       
 
       {/* Bảng danh sách hàng hóa */}
-      <table className="min-w-full border-collapse border border-gray-200">
+      <motion.table
+        className="min-w-full border-collapse"
+        variants={tableVariants}
+        transition={{ duration: 0.6 }}
+      >
         <thead>
           <tr>
             <th className="border border-gray-200 p-2">STT</th>
@@ -295,13 +337,13 @@ const currentPost = posts.find(post => post.id === selectedItem.id);
             </tr>
           ))}
         </tbody>
-      </table>
+      </motion.table>
 
       {/* Bảng danh sách hàng đã xuất */}
       <div className="flex items-center w-[92%] mx-auto">
-      <h2 className="text-xl font-bold my-4 text-blue-500">Danh sách hàng được xuất</h2>
+      <h2 className="text-2xl font-bold my-4 text-blue-500">Danh sách hàng được xuất</h2>
       <button
-            className="ml-auto text-white bg-blue-600 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg mr-4"
+            className="ml-auto style-button"
             onClick={handleGoToDealerPage}>
             Đi tới trang đại lý
           </button>
@@ -410,7 +452,7 @@ const currentPost = posts.find(post => post.id === selectedItem.id);
           </div>
         </div>
       )}
-      </div>
+    </motion.div>
     </>
   );
 }

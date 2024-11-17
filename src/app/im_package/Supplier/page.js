@@ -3,6 +3,9 @@ import Nav_bar from '@/app/components/Nav/Nav_bar';
 import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Background from '/public/Baixar-fundo-abstrato-hexágono_-conceito-poligonal-de-tecnologia-gratuitamente.png';
 
 export default function Supplier() {
   const [productList, setProductList] = useState([]);
@@ -15,6 +18,20 @@ export default function Supplier() {
   const [showEditForm, setShowEditForm] = useState(false);
   const [currentNCC, setCurrentNCC] = useState(null);
   const [isTableVisible, setIsTableVisible] = useState(false);
+
+  const containerAnimation = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 1 } },
+  };
+
+  const rowAnimation = {
+    hidden: { opacity: 0, x: -20 },
+    visible: (i) => ({
+      opacity: 1,
+      x: 0,
+      transition: { delay: i * 0.1, duration: 0.8 },
+    }),
+  };
 
   const router = useRouter();
 
@@ -258,13 +275,13 @@ export default function Supplier() {
     }
   };
 
-  if (loading) {
-      return <div className="text-center">Đang tải dữ liệu...</div>; // Thông báo tải dữ liệu
-  }
+  // if (loading) {
+  //     return <div className="text-center">Đang tải dữ liệu...</div>; // Thông báo tải dữ liệu
+  // }
 
-  if (error) {
-      return <div className="text-red-500 text-center">Lỗi: {error}</div>; // Hiển thị thông báo lỗi
-  }
+  // if (error) {
+  //     return <div className="text-red-500 text-center">Lỗi: {error}</div>; // Hiển thị thông báo lỗi
+  // }
   
 
   const totalPayment = productList.reduce((total, item) => {
@@ -273,33 +290,82 @@ export default function Supplier() {
   return (
     <>
     <Nav_bar />
-    
-    <div className="flex flex-col space-y-4 mt-8 pt-16">
-      <h1 className="text-2xl font-bold mr-4 text-center">Nhà cung cấp</h1>
+    <Image
+      alt="Mountains"
+      src={Background}
+      placeholder="blur"
+      quality={100}
+      sizes="100vw"
+      style={{
+        objectFit: 'cover',
+        position: 'fixed',
+      }}
+      className="blur-sm absolute w-screen h-screen"
+    />
+    <motion.div
+      className="flex relative flex-col space-y-4 mt-8 pt-16"
+      initial="hidden"
+      animate="visible"
+      variants={containerAnimation}
+    >
+      <motion.h1
+        className="text-2xl font-bold mr-4 text-center"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ duration: 0.5 }}
+      >
+        Nhà cung cấp
+      </motion.h1>
       <div className="w-full flex justify-center">
         <div className="w-3/5 border-t-2 border-blue-700"></div>
       </div>
 
       <div className="mx-auto flex gap-x-2">
-      <Link href="/im_package/AddProduct">
-        <button className="style-button">
-          Quay lại trang thêm hàng cần nhập
-        </button>
-      </Link>
-      <Link href="/im_package/BillProduct">
-          <button className="style-button ">
-            Xem hóa đơn nhập hàng tại đây
-          </button>
-      </Link>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Link href="/im_package/AddProduct">
+            <button className="style-button">
+              Quay lại trang thêm hàng cần nhập
+            </button>
+          </Link>
+        </motion.div>
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
+        >
+          <Link href="/im_package/BillProduct">
+            <button className="style-button">
+              Xem hóa đơn nhập hàng tại đây
+            </button>
+          </Link>
+        </motion.div>
       </div>
+
       {productList.length === 0 ? (
-        <div className="mt-8 text-center">
+        <motion.div
+          className="mt-8 text-center"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <p className="text-gray-500">Không có sản phẩm nào cần được nhập.</p>
-        </div>
+        </motion.div>
       ) : (
-        <div className="mt-8 w-full overflow-x-auto">
+        <motion.div
+          className="mt-8 w-full overflow-x-auto"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.5 }}
+        >
           <h2 className="text-xl font-bold ml-4 text-blue-500">Danh sách sản phẩm cần nhập</h2>
-          <table className="min-w-full mt-4 border-collapse border border-gray-300">
+          <motion.table
+            className="min-w-full mt-4 border-collapse border border-gray-300"
+            initial="hidden"
+            animate="visible"
+            variants={containerAnimation}
+          >
             <thead>
               <tr className="bg-blue-200">
                 <th className="border border-gray-300 p-2">Số thứ tự</th>
@@ -314,14 +380,21 @@ export default function Supplier() {
               {productList.map((item, index) => {
                 const totalAmount = item.soLuong * item.giaNhap;
                 return (
-                  <tr key={index} className="bg-gray-100">
+                  <motion.tr
+                    key={index}
+                    custom={index}
+                    initial="hidden"
+                    animate="visible"
+                    variants={rowAnimation}
+                    className="bg-gray-100"
+                  >
                     <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
                     <td className="border border-gray-300 p-2 text-center">{item.ma}</td>
                     <td className="border border-gray-300 p-2 text-center">{item.ten}</td>
                     <td className="border border-gray-300 p-2 text-center">{item.soLuong}</td>
                     <td className="border border-gray-300 p-2 text-right">{item.giaNhap}</td>
                     <td className="border border-gray-300 p-2 text-right">{totalAmount}</td>
-                  </tr>
+                  </motion.tr>
                 );
               })}
             </tbody>
@@ -331,42 +404,45 @@ export default function Supplier() {
                 <td className="border border-gray-300 p-2 text-right">{totalPayment}</td>
               </tr>
             </tfoot>
-          </table>
-        </div>
+          </motion.table>
+        </motion.div>
       )}
-    </div>
-
-
+    </motion.div>
 
 
       {/* //////////////////////<ListNCC />/////////////////////////////////////////// */}
 
 
 
-    <div className="flex flex-col space-y-4">
-      {backendNCC.length === 0 ? (
-        <div className="mt-8 text-center">
-          <p className="text-gray-500">Không có nhà cung cấp nào.</p>
-        </div>
-      ) : (
-        <div className="mt-8 w-full overflow-x-auto">
-          <h2 className="text-xl font-bold ml-4 text-blue-500">Danh sách nhà cung cấp</h2>
-          <div className="mb-4 ml-4">
-            <input
-              type="text"
-              placeholder="Tìm kiếm nhà cung cấp..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="border border-gray-300 p-2 rounded w-full"
-            />
-          </div>
-          <div className="mb-4 flex justify-center items-center space-x-4">
-          <button
-        onClick={handleToggleTable}
-        className="style-button w-[25%]"
-      >
-        {isTableVisible ? 'Ẩn Danh Sách' : 'Hiện Danh Sách Nhà Cung Cấp'}
-      </button>
+      <div className="flex relative flex-col space-y-4">
+  {backendNCC.length === 0 ? (
+    <div className="mt-8 text-center">
+      <p className="text-gray-500">Không có nhà cung cấp nào.</p>
+    </div>
+  ) : (
+    <motion.div
+      className="mt-8 w-full overflow-x-auto"
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      transition={{ duration: 1 }} // Adjust duration for speed
+    >
+      <h2 className="text-xl font-bold ml-4 text-blue-500">Danh sách nhà cung cấp</h2>
+      <div className="mb-4 ml-4">
+        <input
+          type="text"
+          placeholder="Tìm kiếm nhà cung cấp..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 p-2 rounded w-full"
+        />
+      </div>
+      <div className="mb-4 flex justify-center items-center space-x-4">
+        <button
+          onClick={handleToggleTable}
+          className="style-button w-[25%]"
+        >
+          {isTableVisible ? 'Ẩn Danh Sách' : 'Hiện Danh Sách Nhà Cung Cấp'}
+        </button>
         <button
           onClick={() => setShowAddForm(true)}
           className="style-button w-[25%]"
@@ -379,198 +455,204 @@ export default function Supplier() {
         >
           Gửi hóa đơn nhập hàng
         </button>
-        {/* <button
-          onClick={handleExportGoods}
-          className="style-button w-[25%]"
+      </div>
+
+      {showAddForm && (
+  <div
+    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
+    onClick={handleOverlayClick}
+  >
+    <form
+      onSubmit={handleAddNCCSubmit}
+      className="bg-white p-6 rounded shadow-md w-[90%] max-w-md"
+    >
+      <h2 className="text-2xl font-bold mb-4">Thêm nhà cung cấp mới</h2>
+      <div>
+        <label className="block mb-1">Tên nhà cung cấp:</label>
+        <input
+          type="text"
+          value={newNCC.ten}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, ten: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block mb-1">Mã nhà cung cấp:</label>
+        <input
+          type="text"
+          value={newNCC.ma}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, ma: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block mb-1">Địa chỉ:</label>
+        <input
+          type="text"
+          value={newNCC.diaChi}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, diaChi: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block mb-1">Số điện thoại:</label>
+        <input
+          type="text"
+          value={newNCC.soDienThoai}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, soDienThoai: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div className="mt-4">
+        <button type="submit" className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full">
+          Thêm nhà cung cấp
+        </button>
+      </div>
+    </form>
+  </div>
+)}
+{showEditForm && (
+  <div
+    className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
+    onClick={handleOverlayClick}
+  >
+    <form
+      onSubmit={handleEditNCCSubmit}
+      className="bg-white p-6 rounded shadow-md w-[90%] max-w-md"
+    >
+      <h2 className="text-2xl font-bold mb-4 text-center">Sửa đại lý</h2>
+      <div>
+        <label className="block mb-1">Tên nhà cung cấp:</label>
+        <input
+          type="text"
+          value={newNCC.ten}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, ten: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block mb-1">Mã nhà cung cấp:</label>
+        <input
+          type="text"
+          value={newNCC.ma}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, ma: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block mb-1">Địa chỉ:</label>
+        <input
+          type="text"
+          value={newNCC.diaChi}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, diaChi: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div>
+        <label className="block mb-1">Số điện thoại:</label>
+        <input
+          type="text"
+          value={newNCC.soDienThoai}
+          onChange={(e) =>
+            setNewNCC({ ...newNCC, soDienThoai: e.target.value })
+          }
+          className="border border-gray-300 p-2 rounded w-full"
+          required
+        />
+      </div>
+      <div className="mt-4">
+        <button type="submit" className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full">
+          Cập nhật nhà cung cấp
+        </button>
+      </div>
+    </form>
+  </div>
+)}
+
+      {isTableVisible && (
+        <motion.table
+          className="min-w-full mt-4 border-collapse border border-gray-300"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3 }} // Adjust duration for speed
         >
-          Xuất hàng cho đại lý
-        </button> */}
-        </div>
-        {showAddForm && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
-          onClick={handleOverlayClick}
-        >
-          <form
-            onSubmit={handleAddNCCSubmit}
-            className="bg-white p-6 rounded shadow-md w-[90%] max-w-md"
-          >
-            <h2 className="text-2xl font-bold mb-4">Thêm nhà cung cấp mới</h2>
-            <div>
-              <label className="block mb-1">Tên nhà cung cấp:</label>
-              <input
-                type="text"
-                value={newNCC.ten}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, ten: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Mã nhà cung cấp:</label>
-              <input
-                type="text"
-                value={newNCC.ma}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, ma: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Địa chỉ:</label>
-              <input
-                type="text"
-                value={newNCC.diaChi}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, diaChi: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Số điện thoại:</label>
-              <input
-                type="text"
-                value={newNCC.soDienThoai}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, soDienThoai: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div className="mt-4">
-              <button type="submit" className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full">
-                Thêm nhà cung cấp
-              </button>
-            </div>
-          </form>
-        </div>
+          <thead>
+            <tr className="bg-blue-200">
+              <th className="border border-gray-300 p-2">Chọn</th>
+              <th className="border border-gray-300 p-2">Số thứ tự</th>
+              <th className="border border-gray-300 p-2">Mã nhà cung cấp</th>
+              <th className="border border-gray-300 p-2">Tên nhà cung cấp</th>
+              <th className="border border-gray-300 p-2">Địa chỉ</th>
+              <th className="border border-gray-300 p-2">Số điện thoại</th>
+              <th className="border border-gray-200 p-2">Chức năng</th>
+            </tr>
+          </thead>
+          <tbody>
+            {filteredNCC.map((item, index) => (
+              <motion.tr
+                key={index}
+                className="bg-gray-100"
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <td className="border border-gray-300 p-2 text-center">
+                  <input
+                    type="checkbox"
+                    checked={selectedNCC && selectedNCC.id === item.id}
+                    onChange={() => handleSelectNCC(item.id)}
+                  />
+                </td>
+                <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
+                <td className="border border-gray-300 p-2 text-center">{item.ma}</td>
+                <td className="border border-gray-300 p-2 text-center">{item.ten}</td>
+                <td className="border border-gray-300 p-2 text-center">{item.diaChi}</td>
+                <td className="border border-gray-300 p-2 text-right">{item.soDienThoai}</td>
+                <td className="border border-gray-200 p-2">
+                  <div className="flex justify-center space-x-2">
+                    <button
+                      onClick={() => handleEditClick(item)}
+                      className="style-button"
+                    >
+                      Sửa
+                    </button>
+                    <button
+                      onClick={() => handleDeleteClick(item.id)}
+                      className="style-button"
+                    >
+                      Xóa
+                    </button>
+                  </div>
+                </td>
+              </motion.tr>
+            ))}
+          </tbody>
+        </motion.table>
       )}
-      {showEditForm && (
-        <div
-          className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-10"
-          onClick={handleOverlayClick}
-        >
-          <form
-            onSubmit={handleEditNCCSubmit}
-            className="bg-white p-6 rounded shadow-md w-[90%] max-w-md"
-          >
-            <h2 className="text-2xl font-bold mb-4 text-center">Sửa đại lý</h2>
-            <div>
-              <label className="block mb-1">Tên nhà cung cấp:</label>
-              <input
-                type="text"
-                value={newNCC.ten}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, ten: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Mã nhà cung cấp:</label>
-              <input
-                type="text"
-                value={newNCC.ma}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, ma: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Địa chỉ:</label>
-              <input
-                type="text"
-                value={newNCC.diaChi}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, diaChi: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div>
-              <label className="block mb-1">Số điện thoại:</label>
-              <input
-                type="text"
-                value={newNCC.soDienThoai}
-                onChange={(e) =>
-                  setNewNCC({ ...newNCC, soDienThoai: e.target.value })
-                }
-                className="border border-gray-300 p-2 rounded w-full"
-                required
-              />
-            </div>
-            <div className="mt-4">
-              <button type="submit" className="bg-blue-500 text-white font-bold py-2 px-4 rounded w-full">
-                Cập nhật nhà cung cấp
-              </button>
-            </div>
-          </form>
-        </div>
-      )}
-          {isTableVisible && (
-          <table className="min-w-full mt-4 border-collapse border border-gray-300">
-            <thead>
-              <tr className="bg-blue-200">
-                <th className="border border-gray-300 p-2">Chọn</th>
-                <th className="border border-gray-300 p-2">Số thứ tự</th>
-                <th className="border border-gray-300 p-2">Mã nhà cung cấp</th>
-                <th className="border border-gray-300 p-2">Tên nhà cung cấp</th>
-                <th className="border border-gray-300 p-2">Địa chỉ</th>
-                <th className="border border-gray-300 p-2">Số điện thoại</th>
-                <th className="border border-gray-200 p-2">Chức năng</th>
-              </tr>
-            </thead>
-            <tbody>
-              {filteredNCC.map((item, index) =>(
-                  <tr key={index} className="bg-gray-100">
-                        <td className="border border-gray-300 p-2 text-center">
-                            <input
-                                type="checkbox"
-                                checked={selectedNCC  && selectedNCC.id === item.id} // Kiểm tra xem có được chọn hay không
-                                onChange={() => handleSelectNCC(item.id)} // Xử lý khi checkbox được chọn
-                            />
-                        </td>                                  
-                    <td className="border border-gray-300 p-2 text-center">{index + 1}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.ma}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.ten}</td>
-                    <td className="border border-gray-300 p-2 text-center">{item.diaChi}</td>
-                    <td className="border border-gray-300 p-2 text-right">{item.soDienThoai}</td>
-                    <td className="border border-gray-200 p-2">
-                <div className="flex justify-center space-x-2">
-                <button
-                  onClick={() => handleEditClick(item)}
-                  className="style-button"
-                >
-                  Sửa
-                </button>
-                <button
-                  onClick={() => handleDeleteClick(item.id)}
-                  className="style-button"
-                >
-                  Xóa
-                </button>
-                </div>
-              </td>
-                  </tr>
-                )
-              )}
-            </tbody>
-          </table>
-          )}
-        </div>
-      )}
-    </div>
+    </motion.div>
+  )}
+</div>
     </>
   );
 }

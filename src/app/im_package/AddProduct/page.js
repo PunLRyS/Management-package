@@ -4,12 +4,21 @@ import React from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Nav_bar from '@/app/components/Nav/Nav_bar';
+import Image from 'next/image';
+import { m, motion } from 'framer-motion';
+import Background from '/public/Baixar-fundo-abstrato-hexágono_-conceito-poligonal-de-tecnologia-gratuitamente.png';
 export default function AddProductPage() {
   const [isOpen, setIsOpen] = useState(false);
   const [productList, setProductList] = useState([]);
   const [editingIndex, setEditingIndex] = useState(null); 
   const [searchTerm, setSearchTerm] = useState(''); // Trạng thái tìm kiếm
   const [confirmationOpen, setConfirmationOpen] = useState(false);
+
+  const animationVariants = {
+    hidden: { opacity: 0, y: -50 },
+    visible: { opacity: 1, y: 0, transition: { duration: 1 } },
+  };
+
 
   function generateRandomCode(length) {
     const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
@@ -99,35 +108,69 @@ export default function AddProductPage() {
     return (
       <>
     <Nav_bar />
-      <div className="pt-16">
-      <div className="flex flex-col space-y-4 mt-8">
-        <h1 className="text-2xl font-bold mr-4 text-center">Hãy thêm hàng hóa bạn cần nhập tại đây</h1> 
-        <div class="w-full flex justify-center">
-          <div class="w-3/5 border-t-2 border-blue-700"></div>
-        </div>
-      {/* Ô tìm kiếm */}
-      <input
-        type="text"
-        placeholder="Tìm kiếm sản phẩm..."
-        value={searchTerm}
-        onChange={(e) => setSearchTerm(e.target.value)}
-        className="border border-gray-300 p-2 rounded w-full mt-4 shadow-sm focus:outline-none focus:border-blue-500 focus:border-2"
-      />
-
-      <div className="flex mx-auto gap-x-4">
-      <button
-          className="style-button"
-          onClick={() => setIsOpen(!isOpen)}
+    <Image
+      alt="Mountains"
+      src={Background}
+      placeholder="blur"
+      quality={100}
+      sizes="100vw"
+      style={{
+        objectFit: 'cover',
+        position: 'fixed',
+      }}
+      className="blur-sm absolute w-screen h-screen"
+    />
+       <motion.div
+      initial="hidden"
+      animate="visible"
+      variants={animationVariants}
+      className="pt-16 relative"
+    >
+      <motion.div
+        initial="hidden"
+        animate="visible"
+        variants={animationVariants}
+        className="flex flex-col space-y-4 mt-8"
+      >
+        <motion.h1
+          variants={animationVariants}
+          className="text-2xl font-bold mr-4 text-center"
         >
-          {isOpen ? 'Quay lại' : 'Hãy thêm sản phẩm tại đây'}
-      </button>
-      <Link href="/im_package/BillProduct">
-      <button className="style-button">
-        Xem hóa đơn nhập hàng tại đây
-      </button>
-      </Link>
-      </div>
+          Hãy thêm hàng hóa bạn cần nhập tại đây
+        </motion.h1>
+        <motion.div
+          variants={animationVariants}
+          className="w-full flex justify-center"
+        >
+          <div className="w-3/5 border-t-2 border-blue-700"></div>
+        </motion.div>
 
+        {/* Ô tìm kiếm */}
+        <motion.input
+          variants={animationVariants}
+          type="text"
+          placeholder="Tìm kiếm sản phẩm..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          className="border border-gray-300 p-2 rounded w-full mt-4 shadow-sm focus:outline-none focus:border-blue-500 focus:border-2"
+        />
+
+        <motion.div
+          variants={animationVariants}
+          className="flex mx-auto gap-x-4"
+        >
+          <button
+            className="style-button"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? "Quay lại" : "Hãy thêm sản phẩm tại đây"}
+          </button>
+          <Link href="/im_package/BillProduct">
+            <button className="style-button">
+              Xem hóa đơn nhập hàng tại đây
+            </button>
+          </Link>
+        </motion.div>
       {isOpen && (
         <div className="mt-4 bg-gray-100 p-4 rounded-md shadow-md">
           <h2 className="text-xl font-bold mb-4 text-blue-500">Thêm sản phẩm</h2>
@@ -208,9 +251,9 @@ export default function AddProductPage() {
       {filteredProducts.length > 0 && ( // Sử dụng danh sách đã lọc
         <div className="mt-8 w-full">
           <div className="flex items-center">
-          <h2 className="text-xl font-bold ml-4 text-blue-500">Danh sách sản phẩm</h2>
+          <h2 className="text-2xl font-bold ml-4 text-blue-500">Danh sách sản phẩm</h2>
           <button
-            className="ml-auto text-white bg-blue-500 hover:bg-blue-700 font-bold py-2 px-4 rounded-lg mr-4"
+            className="ml-auto style-button"
             onClick={() => setConfirmationOpen(true)}>
             Gửi đơn hàng tới nhà cung cấp
           </button>
@@ -290,8 +333,8 @@ export default function AddProductPage() {
           </div>
         </div>
       )}
-    </div>
-      </div>
+    </motion.div>
+      </motion.div>
       </>
     );
   }

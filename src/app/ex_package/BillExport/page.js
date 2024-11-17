@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Link from 'next/link';
 import Nav_bar from '@/app/components/Nav/Nav_bar';
+import Image from 'next/image';
+import Background from '/public/Baixar-fundo-abstrato-hexágono_-conceito-poligonal-de-tecnologia-gratuitamente.png';
 
 export default function CombinedBillDealerData() {
   const [combinedData, setCombinedData] = useState([]);
@@ -60,7 +62,19 @@ export default function CombinedBillDealerData() {
   return (
     <>
     <Nav_bar />
-    <div className="flex flex-col space-y-4 mt-8 pt-16">
+    <Image
+      alt="Mountains"
+      src={Background}
+      placeholder="blur"
+      quality={100}
+      sizes="100vw"
+      style={{
+        objectFit: 'cover',
+        position: 'fixed',
+      }}
+      className="blur-sm absolute w-screen h-screen"
+    />
+    <div className="flex flex-col space-y-4 mt-8 pt-16 relative">
       <h1 className="text-2xl font-bold mr-4 text-center">Hóa đơn xuất hàng</h1>
       <div className="w-full flex justify-center">
         <div className="w-3/5 border-t-2 border-blue-700"></div>
@@ -80,7 +94,7 @@ export default function CombinedBillDealerData() {
           </div>
         ) : (
           combinedData.map((item, index) => (
-            <div key={index} className="mt-8 w-full overflow-x-auto shadow-2xl rounded-lg border border-gray-200 p-10">
+            <div key={index} className="mt-8 w-full bg-white overflow-x-auto shadow-2xl rounded-lg border border-gray-200 p-10">
               <motion.div
                 initial={{ opacity: 0, scale: 0.8 }}
                 whileInView={{ opacity: 1, scale: 1 }}
