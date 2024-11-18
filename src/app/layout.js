@@ -18,29 +18,6 @@ const geistMono = localFont({
 });
 
 export default function RootLayout({ children }) {
-  const [loading, setLoading] = useState(false);
-  const [hasPlayedFirstVideo, setHasPlayedFirstVideo] = useState(false); // Trạng thái video đầu tiên
-  const pathname = usePathname();
-
-  useEffect(() => {
-    if (!hasPlayedFirstVideo) {
-      // Nếu video chưa chạy, không bật loading
-      return;
-    }
-
-    setLoading(true);
-
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1000); // Ẩn loading sau 1 giây
-
-    return () => clearTimeout(timer);
-  }, [pathname, hasPlayedFirstVideo]);
-
-  const handleVideoPlay = () => {
-    setHasPlayedFirstVideo(true); // Video đầu tiên đã chạy xong
-  };
-
   return (
     <html lang="en">
       <head>
@@ -54,24 +31,6 @@ export default function RootLayout({ children }) {
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {/* Hiển thị overlay chỉ nếu video chưa chạy */}
-        {loading && !hasPlayedFirstVideo && <LoadingOverlay />}
-
-        {/* Video đầu tiên */}
-        {!hasPlayedFirstVideo && (
-          <video
-            autoPlay
-            muted
-            preload="auto"
-            playsInline
-            onCanPlay={() => handleVideoPlay()} // Đánh dấu video đã chạy
-            className="hidden"
-          >
-            <source src="/Logo-3-[remix].mp4" type="video/mp4" />
-          </video>
-        )}
-
-        {/* Nội dung trang */}
         {children}
       </body>
     </html>
